@@ -7,8 +7,10 @@ def main():
     bpy.context.scene.render.resolution_y = 1536
     bpy.context.scene.render.engine = 'BLENDER_EEVEE'
     bpy.context.scene.render.fps = 25
+    bpy.context.scene.frame_start = 1001
+    bpy.context.scene.frame_start = 1240
 
-    # ------------------------------------------ output settings    
+    # ------------------------------------------ output settings
     bpy.context.scene.render.image_settings.file_format = 'OPEN_EXR_MULTILAYER'
     bpy.context.scene.render.image_settings.exr_codec = 'ZIP'
 
@@ -17,6 +19,11 @@ def main():
     bpy.context.scene.view_layers["ViewLayer"].use_pass_cryptomatte_object = True
     bpy.context.scene.view_layers["ViewLayer"].use_pass_cryptomatte_material = True
 
+    # export path
+    filename = bpy.path.basename(bpy.data.filepath)
+    filename = os.path.splitext(filename)[0]
+    if filename:
+        bpy.context.scene.render.filepath = os.path.join("M:/frogging_hell_prism/02_Library/Shots/000-pipeline/Rendering/3dRender", filename, filename+"_")
 
 if __name__ == "__main__":
   main()
