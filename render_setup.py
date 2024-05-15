@@ -1,4 +1,5 @@
 import bpy
+import os
 
 def main():
     
@@ -8,7 +9,6 @@ def main():
     bpy.context.scene.render.engine = 'BLENDER_EEVEE'
     bpy.context.scene.render.fps = 25
     bpy.context.scene.frame_start = 1001
-    bpy.context.scene.frame_start = 1240
 
     # ------------------------------------------ output settings
     bpy.context.scene.render.image_settings.file_format = 'OPEN_EXR_MULTILAYER'

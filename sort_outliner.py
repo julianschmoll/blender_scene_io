@@ -14,6 +14,8 @@ def sort_scene():
 
     # go through outliner
     for ob in bpy.context.scene.objects:
+        if type == "MESH":
+            ob.scale = (0.01, 0.01, 0.01)
         # sort frodo parts
         if 'chr_frodo' in ob.name:
             ob.select_set(True)
@@ -32,3 +34,25 @@ def sort_scene():
             for other_col in ob.users_collection:
                 other_col.objects.unlink(ob)
             assets_collection.objects.link(ob)
+    
+    # create grease pencil for each collection
+    counter = 0
+    for coll in bpy.context.scene.collection.children:
+        line_art = bpy.ops.object.gpencil_add(align='WORLD', location=(0, 0, 0), scale=(1, 1, 1), type='LRT_COLLECTION')
+        # rename object
+        if counter == 0:
+            rename = "Frodo"
+            bpy.data.objects["LineArt"].name = rename
+            counter = 1
+        elif counter == 1:
+            rename = "Berd, the mighty"
+            bpy.data.objects["LineArt"].name = rename
+            counter+= 1
+        else:
+            rename = "Assets"
+            bpy.data.objects["LineArt"].name = rename
+            
+    # 
+            
+if __name__ == "__main__":
+    sort_scene()
