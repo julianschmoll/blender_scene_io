@@ -5,7 +5,6 @@ import bpy
 nodetree = bpy.context.scene.node_tree
 
 bpy.context.scene.use_nodes = True
-    
 # add render layer node
 render_layer_node = nodetree.nodes.new("CompositorNodeRLayers")
     
