@@ -23,7 +23,11 @@ def main():
     filename = bpy.path.basename(bpy.data.filepath)
     filename = os.path.splitext(filename)[0]
     if filename:
-        bpy.context.scene.render.filepath = os.path.join("M:/frogging_hell_prism/02_Library/Shots/000-pipeline/Rendering/3dRender", filename, filename+"_")
+        bpy.context.scene.render.filepath = os.path.join(
+            "M:/frogging_hell_prism/02_Library/Shots/000-pipeline/Rendering/3dRender",
+            filename,
+            f"{filename}_"
+        )
 
 if __name__ == "__main__":
   main()
