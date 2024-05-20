@@ -1,64 +1,73 @@
 import bpy
 import os
+import logging
 
-base_dir = r"M:\frogging_hell_prism\02_Library\Shots"
-shots = os.listdir(base_dir)
-shot_string = bpy.props.StringProperty(name="String Value")
+BASE_DIR = r"M:\frogging_hell_prism\02_Library\Shots"
+SHOT_STRING = bpy.props.StringProperty(name="String Value")
+LOGGER = logging.getLogger("Frogging Hell Menu")
 
 
-class MY_MT_FrogMenu(bpy.types.Menu):
+class FrogMenu(bpy.types.Menu):
     bl_label = "Frogging Hell"
-    bl_idname = "OBJECT_MT_custom_menu"
-    print("hello")
+    bl_idname = "OBJECT_MT_frog_menu"
+    LOGGER.info("Initializing Frog Menu")
 
     def draw(self, context):
         layout = self.layout
         layout.label(text="Common Tools", icon='RENDER_ANIMATION')
-
-        # call the second custom menu
-        layout.menu("OBJECT_MT_sub_menu", icon="ASSET_MANAGER")
+        layout.menu("OBJECT_MT_shot_assembly_menu", icon="ASSET_MANAGER")
 
 
-class MY_MT_FrogSubMenu(bpy.types.Menu):
+class AssembleShotSubMenu(bpy.types.Menu):
     bl_label = "Assemble Shot"
-    bl_idname = "OBJECT_MT_sub_menu"
+    bl_idname = "OBJECT_MT_shot_assembly_menu"
+    LOGGER.info("Adding Shot Assembly Menu")
 
     def draw(self, context):
         layout = self.layout
-        layout.label(text="Select Shot to assemble", icon='IMPORT')
+        layout.label(text="Select Shot to assemble")
 
+        sequence = ""
         for shot in get_shot_list():
-            layout.operator("object.simple_operator", text=shot).shot_name = shot
+            if sequence != shot.split("-")[0]:
+                sequence = shot.split("-")[0]
+                layout.label(text=f"Sequence {sequence}", icon='SEQUENCE')
+            LOGGER.debug(f"Populated Shot Assembly menu with {shot}")
+            layout.operator(
+                "object.shot_assembly_operator",
+                text=f"Shot {' '.join(shot.split('-')[1:]).title()}"
+            ).shot_name = shot
 
 
 class ImportShot(bpy.types.Operator):
     """Import Shot Caches for selected shot"""
-    bl_idname = "object.simple_operator"
-    bl_label = "Simple Object Operator"
+    bl_idname = "object.shot_assembly_operator"
+    bl_label = "Shot Assembly Operator"
     shot_name: bpy.props.StringProperty(name="")
 
-    @classmethod
-    def poll(cls, context):
-        return context.active_object is not None
-
     def execute(self, context):
-        shot_name = self.shot_name
         shot_caches = get_shot_caches(self.shot_name)
+        if not shot_caches:
+            self.report({"ERROR"}, f"No valid cache found for {self.shot_name}")
+            return {'CANCELLED'}
+        LOGGER.info(f"Executing Shot Assembly for {self.shot_name} (Caches: {shot_caches})")
+        self.report({"INFO"}, f"Executing Shot Assembly for {self.shot_name}")
         # ToDo: Call assemble shot here
         return {'FINISHED'}
 
 
 def get_shot_list():
-    return os.listdir(base_dir)
+    return os.listdir(BASE_DIR)
 
 
 def get_shot_caches(shot):
-    export_folder = os.path.join(base_dir, shot, "Export", "Animation")
+    export_folder = os.path.join(BASE_DIR, shot, "Export", "Animation")
 
     try:
         version_folders = os.listdir(export_folder)
     except FileNotFoundError:
-        raise RuntimeError(f"Kein gültiger Cache für {shot}")
+        LOGGER.error(f"No valid cache found for {shot}")
+        return
 
     versions = []
 
@@ -84,18 +93,18 @@ def get_shot_caches(shot):
 
 
 def draw_menu(self, context):
-    self.layout.menu(MY_MT_FrogMenu.bl_idname)
+    self.layout.menu(FrogMenu.bl_idname)
 
 
 def register():
-    bpy.utils.register_class(MY_MT_FrogMenu)
+    bpy.utils.register_class(FrogMenu)
     bpy.utils.register_class(ImportShot)
-    bpy.utils.register_class(MY_MT_FrogSubMenu)
+    bpy.utils.register_class(AssembleShotSubMenu)
     bpy.types.TOPBAR_MT_editor_menus.append(draw_menu)
 
 
 def unregister():
     bpy.types.VIEW3D_MT_curve_add.remove(draw_menu)
     bpy.utils.unregister_class(ImportShot)
-    bpy.utils.unregister_class(MY_MT_FrogSubMenu)
-    bpy.utils.unregister_class(MY_MT_FrogMenu)
+    bpy.utils.unregister_class(AssembleShotSubMenu)
+    bpy.utils.unregister_class(FrogMenu)
