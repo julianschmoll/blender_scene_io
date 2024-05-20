@@ -30,6 +30,7 @@ class AssembleShotSubMenu(bpy.types.Menu):
         sequence = ""
         for shot in get_shot_list():
             if sequence != shot.split("-")[0]:
+                layout.separator()
                 sequence = shot.split("-")[0]
                 layout.label(text=f"Sequence {sequence}", icon='SEQUENCE')
             LOGGER.debug(f"Populated Shot Assembly menu with {shot}")
@@ -41,8 +42,8 @@ class AssembleShotSubMenu(bpy.types.Menu):
 
 class ImportShot(bpy.types.Operator):
     """Import Shot Caches for selected shot"""
-    bl_idname = "object.shot_assembly_operator"
     bl_label = "Shot Assembly Operator"
+    bl_idname = "object.shot_assembly_operator"
     shot_name: bpy.props.StringProperty(name="")
 
     def execute(self, context):
