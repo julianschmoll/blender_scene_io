@@ -114,7 +114,7 @@ def sort_scene():
                 other_col.objects.unlink(ob)
                 
             # check if canvas
-            if 'foreground' in ob.name:
+            if ob.location[1] > -2 :
                 foreground_collection.objects.link(ob)
             
             # check if tongue
@@ -150,6 +150,3 @@ def sort_scene():
             bpy.data.objects["LineArt"].name = rename
             
     # 
-            
-if __name__ == "__main__":
-    sort_scene()

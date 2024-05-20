@@ -29,5 +29,3 @@ def main():
             f"{filename}_"
         )
 
-if __name__ == "__main__":
-  main()

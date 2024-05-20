@@ -2,31 +2,32 @@ import bpy
 
 # -------------------------------------------------------------------------------- COMP ---------------------------------------------------------------------
 
-nodetree = bpy.context.scene.node_tree
+def basic_comp_setup():
+    nodetree = bpy.context.scene.node_tree
 
-bpy.context.scene.use_nodes = True
-# add render layer node
-render_layer_node = nodetree.nodes.new("CompositorNodeRLayers")
-    
-# add cryptomatte node
-cryptomatte_node = nodetree.nodes.new("CompositorNodeCryptomatteV2")
-    
-# add file output node
-output_node = nodetree.nodes.new("CompositorNodeOutputFile")
-    
-# add slots ro node
-output_node.layer_slots.new("Cryptomatte")
-    
-# place nodes in comp space
-cryptomatte_node.location = (400,200)
-output_node.location = (1000,100)
-render_layer_node.location = (0,200)
-# ---------------------------------------------------------------------------- connecting nodes
-    
-# render layer to output
-nodetree.links.new(render_layer_node.outputs["Image"],output_node.inputs["Image"])
-# crypto to output
-nodetree.links.new(cryptomatte_node.outputs["Matte"],output_node.inputs["Cryptomatte"])
+    bpy.context.scene.use_nodes = True
+    # add render layer node
+    render_layer_node = nodetree.nodes.new("CompositorNodeRLayers")
 
-# render layer to crypto
-nodetree.links.new(render_layer_node.outputs["Image"],cryptomatte_node.inputs[0])
+    # add cryptomatte node
+    cryptomatte_node = nodetree.nodes.new("CompositorNodeCryptomatteV2")
+
+    # add file output node
+    output_node = nodetree.nodes.new("CompositorNodeOutputFile")
+
+    # add slots ro node
+    output_node.layer_slots.new("Cryptomatte")
+
+    # place nodes in comp space
+    cryptomatte_node.location = (400,200)
+    output_node.location = (1000,100)
+    render_layer_node.location = (0,200)
+    # ---------------------------------------------------------------------------- connecting nodes
+
+    # render layer to output
+    nodetree.links.new(render_layer_node.outputs["Image"],output_node.inputs["Image"])
+    # crypto to output
+    nodetree.links.new(cryptomatte_node.outputs["Matte"],output_node.inputs["Cryptomatte"])
+
+    # render layer to crypto
+    nodetree.links.new(render_layer_node.outputs["Image"],cryptomatte_node.inputs[0])

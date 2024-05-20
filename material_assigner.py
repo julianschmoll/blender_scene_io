@@ -67,5 +67,3 @@ def texture_frodo():
 # texture bed
 def texture_bed():
     return 0
-
-texture_frodo()
