@@ -1,6 +1,9 @@
 import bpy
 import os
+import logging
 
+logging.basicConfig(level=logging.INFO)
+LOGGER = logging.getLogger("blender_scene_io")
 
 # texture frodo
 def texture_frodo():
@@ -62,8 +65,4 @@ def texture_frodo():
         # set color space
         bpy.data.images["chr-frodo_Modeling_v0051_frodo_skin_BaseColor_ACES - ACEScg.004"].colorspace_settings.name = 'ACES - ACEScg'
 
-        
-    
-# texture bed
-def texture_bed():
-    return 0
+    LOGGER.info("Running Texture Script...")

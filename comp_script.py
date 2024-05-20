@@ -1,4 +1,8 @@
 import bpy
+import logging
+
+logging.basicConfig(level=logging.INFO)
+LOGGER = logging.getLogger("blender_scene_io")
 
 # -------------------------------------------------------------------------------- COMP ---------------------------------------------------------------------
 
@@ -31,3 +35,5 @@ def basic_comp_setup():
 
     # render layer to crypto
     nodetree.links.new(render_layer_node.outputs["Image"],cryptomatte_node.inputs[0])
+
+    LOGGER.info("Running Comp Script...")

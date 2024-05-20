@@ -1,7 +1,10 @@
 import bpy
 import os
+import logging
 
-def main():
+logging.basicConfig(level=logging.INFO)
+LOGGER = logging.getLogger("blender_scene_io")
+def set_render_settings():
     
     # ------------------------------------------ render settings    
     bpy.context.scene.render.resolution_x = 2048
@@ -28,4 +31,4 @@ def main():
             filename,
             f"{filename}_"
         )
-
+    LOGGER.info("Running Render Script...")
