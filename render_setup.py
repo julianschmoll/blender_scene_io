@@ -4,14 +4,16 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger("blender_scene_io")
+
+
 def set_render_settings():
-    
-    # ------------------------------------------ render settings    
+    # ------------------------------------------ render settings
     bpy.context.scene.render.resolution_x = 2048
     bpy.context.scene.render.resolution_y = 1536
     bpy.context.scene.render.engine = 'BLENDER_EEVEE'
     bpy.context.scene.render.fps = 25
     bpy.context.scene.frame_start = 1001
+    bpy.context.scene.camera.data.clip_end = 100000
 
     # ------------------------------------------ output settings
     bpy.context.scene.render.image_settings.file_format = 'OPEN_EXR_MULTILAYER'
@@ -32,3 +34,4 @@ def set_render_settings():
             f"{filename}_"
         )
     LOGGER.info("Running Render Script...")
+
