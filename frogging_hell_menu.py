@@ -1,3 +1,5 @@
+from blender_scene_io import assemble_shot
+
 import bpy
 import os
 import logging
@@ -51,9 +53,10 @@ class ImportShot(bpy.types.Operator):
         if not shot_caches:
             self.report({"ERROR"}, f"No valid cache found for {self.shot_name}")
             return {'CANCELLED'}
-        LOGGER.info(f"Executing Shot Assembly for {self.shot_name} (Caches: {shot_caches})")
+        LOGGER.info(f"Executing Shot Assembly for {self.shot_name}")
         self.report({"INFO"}, f"Executing Shot Assembly for {self.shot_name}")
-        # ToDo: Call assemble shot here
+        """ASSEMBLE SHOT HERE"""
+        assemble_shot.load_shot(shot_caches)
         return {'FINISHED'}
 
 
