@@ -6,6 +6,9 @@ logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger("blender_scene_io")
 
 def set_render_settings():
+
+    LOGGER.info("Render Script...")
+
     # ------------------------------------------ render settings
     bpy.context.scene.render.resolution_x = 2048
     bpy.context.scene.render.resolution_y = 1536
@@ -32,5 +35,4 @@ def set_render_settings():
             filename,
             f"{filename}_"
         )
-    LOGGER.info("Running Render Script...")
 
