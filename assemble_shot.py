@@ -15,10 +15,9 @@ def load_shot(shot_caches):
         cache_collection = create_collection(cache_name)
         imported_objects =  import_alembic(cache)
         root_object = get_imported_root_objects(imported_objects)
+        for child in bpy.data
         link_to_collection(root_object,cache_name)
-        LOGGER.info(f"Loaded and sorted {cache} in collection")
-
-    LOGGER.info(f"{import_group}")
+        LOGGER.info(f"Loaded and sorted {cache_name} in collection")
 
 # create collection
 def create_collection(cache_name):
@@ -66,5 +65,11 @@ def link_to_collection(root_object, collection):
 # get cache name from path
 def split_cache(cache):
     cache_name = os.path.basename(cache)
-    cache_name = cache_name[13:-4]
-    return cache_name
+    return cache_name.split("_")[-1].rstrip(".abc")
+
+def getChildren(root_object, imported_objects):
+    children = []
+    for ob in imported_objects:
+        if ob.parent == root_object:
+            children.append(ob)
+    return children
