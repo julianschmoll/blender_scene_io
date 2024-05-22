@@ -10,4 +10,8 @@ LOGGER = logging.getLogger("blender_scene_io")
 def run_startup_scripts():
     """This method is always run when launching blender."""
     LOGGER.info("Running Startup Scripts...")
+    LOGGER.info("Running Menu Scripts...")
     frogging_hell_menu.register()
+    LOGGER.info("Running Render Setup Scripts...")
+    render_setup.set_render_settings()
+    LOGGER.info("Happy Blending!")
