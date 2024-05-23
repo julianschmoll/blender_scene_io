@@ -15,15 +15,24 @@ def load_shot(shot_caches):
         cache_collection = create_collection(cache_name)
         imported_objects =  import_alembic(cache)
         root_object = get_imported_root_objects(imported_objects)
-        for child in bpy.data
-        link_to_collection(root_object,cache_name)
+        """ get hierarchy here"""
+        # select root
+        bpy.data.objects[root_object].select_set(True)
+        # get hierarchy except selected
+        bpy.ops.object.select_grouped(type='CHILDREN_RECURSIVE')
+        # get root again
+        bpy.data.objects[root_object].select_set(True)
+        for obj in bpy.context.selected_objects:
+            link_to_collection(obj,cache_name)
         LOGGER.info(f"Loaded and sorted {cache_name} in collection")
+
 
 # create collection
 def create_collection(cache_name):
     bpy.data.collections.new(cache_name)
     bpy.context.scene.collection.children.link(bpy.data.collections[cache_name])
     return bpy.data.collections[cache_name]
+
 
 # get root of imported cache
 def get_root(cache):
@@ -34,6 +43,7 @@ def get_root(cache):
         return get_root(parent)
     return cache
 
+
 # get root of import
 def get_imported_root_objects(imported_objects):
     """Get the root object of cache"""
@@ -41,6 +51,7 @@ def get_imported_root_objects(imported_objects):
     for ob in imported_objects:
         imported_root = get_root(ob)
     return imported_root
+
 
 # import alembic cache
 def import_alembic(cache):
@@ -55,6 +66,7 @@ def import_alembic(cache):
     imported_objects = post_import_objects - pre_import_objects
     return imported_objects
 
+
 # link root to collection named after import
 def link_to_collection(root_object, collection):
     """Unlink imported root from other collections and link it to the new created collection"""
@@ -66,6 +78,7 @@ def link_to_collection(root_object, collection):
 def split_cache(cache):
     cache_name = os.path.basename(cache)
     return cache_name.split("_")[-1].rstrip(".abc")
+
 
 def getChildren(root_object, imported_objects):
     children = []
