@@ -1,3 +1,5 @@
+from blender_scene_io import material_assigner
+
 import logging
 import bpy
 import os
@@ -29,6 +31,7 @@ def load_shot(shot_caches):
             link_to_collection(obj,cache_name)
         LOGGER.info(f"Loaded and sorted {cache_name} in collection")
     camera_setup()
+    material_assigner.texture_objects_in_scene()
 
 # create collection
 def create_collection(cache_name):
