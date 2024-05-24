@@ -6,22 +6,23 @@ LOGGER = logging.getLogger("Frogging Hell Menu")
 
 def load_shot(shot_caches):
 
-    import_group = []
+    # delete default scene
+    clear_that_beeeeeach()
     # go through caches and load them
     for cache in shot_caches:
         # log cache import
-        LOGGER.info(f"Loading {cache}")
+        # LOGGER.info(f"Loading {cache}")
         cache_name= split_cache(cache)
         cache_collection = create_collection(cache_name)
         imported_objects =  import_alembic(cache)
         root_object = get_imported_root_objects(imported_objects)
         """ get hierarchy here"""
         # select root
-        bpy.data.objects[root_object].select_set(True)
+        root_object.select_set(True)
         # get hierarchy except selected
         bpy.ops.object.select_grouped(type='CHILDREN_RECURSIVE')
         # get root again
-        bpy.data.objects[root_object].select_set(True)
+        root_object.select_set(True)
         for obj in bpy.context.selected_objects:
             link_to_collection(obj,cache_name)
         LOGGER.info(f"Loaded and sorted {cache_name} in collection")
@@ -86,3 +87,15 @@ def getChildren(root_object, imported_objects):
         if ob.parent == root_object:
             children.append(ob)
     return children
+
+def clear_that_beeeeeach():
+    # only worry about data in the startup scene
+    for bpy_data_iter in (
+            bpy.data.objects,
+            bpy.data.meshes,
+            bpy.data.lights,
+            bpy.data.cameras,
+            bpy.data.collections
+    ):
+        for id_data in bpy_data_iter:
+            bpy_data_iter.remove(id_data)
