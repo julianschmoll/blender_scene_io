@@ -1,6 +1,7 @@
 import logging
 import bpy
 import os
+from mathutils import Vector
 
 LOGGER = logging.getLogger("Frogging Hell Menu")
 
@@ -23,10 +24,11 @@ def load_shot(shot_caches):
         bpy.ops.object.select_grouped(type='CHILDREN_RECURSIVE')
         # get root again
         root_object.select_set(True)
+        bpy.context.active_object.scale=(0.01,0.01,0.01)
         for obj in bpy.context.selected_objects:
             link_to_collection(obj,cache_name)
         LOGGER.info(f"Loaded and sorted {cache_name} in collection")
-
+    camera_setup()
 
 # create collection
 def create_collection(cache_name):
@@ -99,3 +101,37 @@ def clear_that_beeeeeach():
     ):
         for id_data in bpy_data_iter:
             bpy_data_iter.remove(id_data)
+
+def camera_setup():
+    # get pos of main ctrl
+    LOGGER.info(bpy.context.scene.objects["set_room_Layout:prp_camera_Rigging:cam_main_ctrl"].location)
+    # create cam on main ctrl pos
+    mult_vector = Vector([0.01,0.01,0.01])
+    bpy.ops.object.camera_add(
+        location=((bpy.context.scene.objects["set_room_Layout:prp_camera_Rigging:cam_main_ctrl"].location.x*mult_vector.x),
+                  (bpy.context.scene.objects["set_room_Layout:prp_camera_Rigging:cam_main_ctrl"].location.y*mult_vector.y),
+                  (bpy.context.scene.objects["set_room_Layout:prp_camera_Rigging:cam_main_ctrl"].location.z*mult_vector.z)),
+        rotation=[1.5708, 0, 0])
+    render_cami = bpy.context.active_object
+    render_cami.name = "RENDER_CAMI"
+    render_cami.data.lens = 74
+    render_cami.data.sensor_fit = 'VERTICAL'
+    # ------------------------------------------------------ set camera shift
+    # add driver*0.1058  to x
+    x_driver = render_cami.data.driver_add('shift_x').driver
+    x_driver.type = 'SCRIPTED'
+    # create variable for driver
+    var = x_driver.variables.new()
+    var.name = "locator_x"
+    var.type = 'TRANSFORMS'
+    # configure the variable to use for the drivers location
+    target = var.targets[0]
+    target.id = bpy.context.scene.objects["set_room_Layout:prp_camera_Rigging:pan_loc"]
+    target.transform_type = 'LOC_X'
+    target.transform_space = 'WORLD_SPACE'
+    # set driver expression
+    x_driver.expression = f"{var.name} * 0.1058"
+    # data.shift_x)
+    render_cami.data.shift_y = -0.442
+    # link camera and locator to cami collection
+    link_to_collection(render_cami, "cami")
