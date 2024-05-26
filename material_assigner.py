@@ -26,7 +26,7 @@ def texture_objects_in_scene():
                 if os.path.exists(texture_dict.value):
                     texture_material = key.split(":")[-1]
                     # create new material named after key
-                    create_material(obj,texture_material,texture_dictionary.value)
+                    create_material(obj,texture_material,texture_dictionary[key])
 
 def create_material(obj,texture_material,path):
     """
