@@ -5,12 +5,14 @@ import bpy
 import os
 from mathutils import Vector
 
+import texture_dictionary
+
 LOGGER = logging.getLogger("Frogging Hell Menu")
 
 def load_shot(shot_caches):
-
     # delete default scene
     clear_that_beeeeeach()
+    wall_collection = create_collection("mattes")
     # go through caches and load them
     for cache in shot_caches:
         # log cache import
@@ -28,8 +30,13 @@ def load_shot(shot_caches):
         root_object.select_set(True)
         bpy.context.active_object.scale=(0.01,0.01,0.01)
         for obj in bpy.context.selected_objects:
-            link_to_collection(obj,cache_name)
+            if deselect_matte(obj):
+                bpy.data.collections["stati"].objects.unlink(obj)
+                bpy.data.collections[wall_collection].objects.link(obj)
+            else:
+                link_to_collection(obj,cache_name)
         LOGGER.info(f"Loaded and sorted {cache_name} in collection")
+        bpy.ops.object.select_all(action='DESELECT')
     camera_setup()
     material_assigner.texture_objects_in_scene()
 
@@ -86,11 +93,12 @@ def split_cache(cache):
     return cache_name.split("_")[-1].rstrip(".abc")
 
 
-def getChildren(root_object, imported_objects):
+def get_children(root_object):
     children = []
-    for ob in imported_objects:
-        if ob.parent == root_object:
-            children.append(ob)
+    for child in root_object.children:
+        children.append(child)
+        if child.children:
+            get_children(child)
     return children
 
 def clear_that_beeeeeach():
@@ -138,3 +146,8 @@ def camera_setup():
     render_cami.data.shift_y = -0.442
     # link camera and locator to cami collection
     link_to_collection(render_cami, "cami")
+
+def deselect_matte(obj):
+    for element in texture_dictionary.matte_list:
+        if obj.name == element:
+            return True
