@@ -9,9 +9,8 @@ LOGGER = logging.getLogger("blender_scene_io")
 
 # texture frodo
 def texture_objects_in_scene():
-
-    LOGGER.info("Running Texture Script...")
-
+    LOGGER.info("Running Shader Script...")
+    cel_shade()
     texture_dict = texture_dictionary.texture_dict
     # go through dictionary
     for obj in bpy.data.objects:
@@ -23,12 +22,13 @@ def texture_objects_in_scene():
                 continue
             else:
                 # check if texture image exists
-                if os.path.exists(texture_dict.value):
+                if os.path.exists(texture_dict[key]):
                     texture_material = key.split(":")[-1]
                     # create new material named after key
-                    create_material(obj,texture_material,texture_dictionary[key])
+                    create_image_texture_material(obj,texture_material,texture_dict[key])
 
-def create_material(obj,texture_material,path):
+
+def create_image_texture_material(obj,texture_material,path):
     """
     This function creates a new image texture material node, links it to an output node.
     The new material is named after the key in the dictionary (eg. frog_whole_pants).
@@ -69,4 +69,34 @@ def create_material(obj,texture_material,path):
     texture_node.texture_mapping.scale[0] = 1.0
     texture_node.texture_mapping.scale[1] = 1.0
     # set color space
-    bpy.data.images["chr-frodo_Modeling_v0051_frodo_skin_BaseColor_ACES - ACEScg.004"].colorspace_settings.name = 'ACES - ACEScg'
+    # bpy.data.images["chr-frodo_Modeling_v0051_frodo_skin_BaseColor_ACES - ACEScg.001"].colorspace_settings.name = 'ACES - ACEScg'
+
+def cel_shade():
+    """This function creates a Cel Shader and assigns it to all objects in the stati collection"""
+    # create Cel Shader material
+    bpy.data.materials.new('Cel Shader')
+    # get Cel Shader material
+    cel_shader = bpy.data.materials.get('Cel Shader')
+    cel_shader.use_nodes=True
+    # remove default nodes and their connections
+    cel_shader.node_tree.links.clear()
+    cel_shader.node_tree.nodes.clear()
+    # assign connection and node tree
+    nodes = cel_shader.node_tree.nodes
+    links = cel_shader.node_tree.links
+    # create nodes
+    bsdf_node = nodes.new(type='ShaderNodeBsdfPrincipled')
+    shader_to_rgb_node = nodes.new(type='ShaderNodeShaderToRGB')
+    c_ramp_node = nodes.new(type='ShaderNodeValToRGB')
+    output_node = nodes.new(type='ShaderNodeOutputMaterial')
+    # connect nodes
+    links.new(bsdf_node.outputs['BSDF'],shader_to_rgb_node.inputs['Shader'])
+    links.new(shader_to_rgb_node.outputs['Color'],c_ramp_node.inputs['Fac'])
+    links.new(c_ramp_node.outputs['Color'],output_node.inputs['Surface'])
+    # loop through all objects in stati and assign the shader
+    for obj in bpy.data.collections['stati'].objects:
+        if obj.type=='MESH':
+            obj.data.materials.append(cel_shader)
+
+def matte_pain():
+    """This function textures the walls with the matte paintings"""
