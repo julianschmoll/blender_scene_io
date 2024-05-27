@@ -12,6 +12,8 @@ def texture_objects_in_scene():
     LOGGER.info("Running Shader Script...")
     cel_shade()
     texture_dict = texture_dictionary.texture_dict
+    matte_dict = texture_dictionary.matte_dict
+    matte_pain("mattes", matte_dict)
     # go through dictionary
     for obj in bpy.data.objects:
         # loop through dictionary
@@ -32,7 +34,7 @@ def create_image_texture_material(obj,texture_material,path):
     """
     This function creates a new image texture material node, links it to an output node.
     The new material is named after the key in the dictionary (eg. frog_whole_pants).
-    It is thenm assigned to the obj which matches the keys name.
+    It is then assigned to the obj which matches the keys name.
     The key's value is used as the path to load the image.
 
     """
@@ -69,6 +71,7 @@ def create_image_texture_material(obj,texture_material,path):
     texture_node.texture_mapping.scale[0] = 1.0
     texture_node.texture_mapping.scale[1] = 1.0
     # set color space
+    texture_node.image.colorspace_settings.name = 'ACES - ACEScg'
     # bpy.data.images["chr-frodo_Modeling_v0051_frodo_skin_BaseColor_ACES - ACEScg.001"].colorspace_settings.name = 'ACES - ACEScg'
 
 def cel_shade():
@@ -87,16 +90,34 @@ def cel_shade():
     # create nodes
     bsdf_node = nodes.new(type='ShaderNodeBsdfPrincipled')
     shader_to_rgb_node = nodes.new(type='ShaderNodeShaderToRGB')
-    c_ramp_node = nodes.new(type='ShaderNodeValToRGB')
+    color_ramp_node = nodes.new(type='ShaderNodeValToRGB')
     output_node = nodes.new(type='ShaderNodeOutputMaterial')
+    # place nodes
+    bsdf_node.location = (0, 200)
+    shader_to_rgb_node.location = (400,200)
+    color_ramp_node.location = (800,200)
+    output_node.location = (1200, 200)
     # connect nodes
     links.new(bsdf_node.outputs['BSDF'],shader_to_rgb_node.inputs['Shader'])
-    links.new(shader_to_rgb_node.outputs['Color'],c_ramp_node.inputs['Fac'])
-    links.new(c_ramp_node.outputs['Color'],output_node.inputs['Surface'])
+    links.new(shader_to_rgb_node.outputs['Color'],color_ramp_node.inputs['Fac'])
+    links.new(color_ramp_node.outputs['Color'],output_node.inputs['Surface'])
     # loop through all objects in stati and assign the shader
     for obj in bpy.data.collections['stati'].objects:
         if obj.type=='MESH':
             obj.data.materials.append(cel_shader)
 
-def matte_pain():
+def matte_pain(collection, input_dictionary):
     """This function textures the walls with the matte paintings"""
+    for obj in bpy.data.collections[collection].objects:
+        if obj.type == 'MESH':
+            for key in input_dictionary:
+                # check if names are the same
+                if obj.name != key:
+                    # if not go to next key
+                    continue
+                else:
+                    # check if texture image exists
+                    if os.path.exists(input_dictionary[key]):
+                        texture_material = key.split(":")[-1]
+                        # create new material named after key
+                        create_image_texture_material(obj, texture_material, input_dictionary[key])
