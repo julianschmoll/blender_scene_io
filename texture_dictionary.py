@@ -36,105 +36,139 @@ matte_list = ["set_room_Layout:door_plane",
               "set_room_Layout:walls_but_thick_left_seperate"
               ]
 
-matte_dict = {
-    "set_room_Layout:door_plane":os.path.join(
-        base_dir,
-        matte_path,
-        "projection_walls-door_plane.png"
-    ),
-    "set_room_Layout:floor_plane_right":os.path.join(
-        base_dir,
-        matte_path,
-        "projection_walls-floor_plane.png"
-    ),
-    "set_room_Layout:walls_but_thick_right_seperate"
-    "":os.path.join(
-        base_dir,
-        matte_path,
-        "projection_walls-walls_but_thick_right_seperate.png"
-    ),
-    "set_room_Layout:walls_but_thick_right":os.path.join(
-        base_dir,
-        matte_path,
-        "projection_walls-walls_but_thick_right.png"
-    ),
-    "set_room_Layout:walls_but_thick_left":os.path.join(
-        base_dir,
-        matte_path,
-        "projection_walls-walls_but_thick_left.png"
-    ),
-    "set_room_Layout:walls_but_thick_left_seperate":os.path.join(
-        base_dir,
-        matte_path,
-        "projection_walls-walls_but_thick_left_seperate.png"
-    ),
-    "set_room_Layout:window_plane":os.path.join(
-        base_dir,
-        matte_path,
-        "projection_walls-window_plane.png"
-    )
-}
+frodo_list = ["eye_l",
+              "eye_r",
+              "frog_martins",
+              "frog_whole_pants",
+              "grab_grab",
+              "leggy_boy",
+              "toxic_body_standards"]
+
+bed_list = ["prp_mattress",
+            "balls1",
+            "balls2",
+            "balls3",
+            "balls4",
+            "bedframe"
+]
 
 texture_dict = {
-    # frodo pants
-    "chr_frodo_Rigging:chr_frodo_Modeling:frog_whole_pants":os.path.join(
-        base_dir,
-        get_version(frodo_path),
-        "frodo_pants/chr-frodo_Modeling_v0051_frodo_pants_BaseColor_ACES - ACEScg.1001.png"
-    ),
-    # frodo gloves
-    "chr_frodo_Rigging:chr_frodo_Modeling:grab_grab":os.path.join(
-        base_dir,
-        get_version(frodo_path),
-        "frodo_shoes/chr-frodo_Modeling_v0051_frodo_shoes_and_gloves_BaseColor_ACES - ACEScg.1001.png"
-    ),
-    # frodo shoes
-    "chr_frodo_Rigging:chr_frodo_Modeling:frog_martins":os.path.join(
-        base_dir,
-        get_version(frodo_path),
-        "frodo_shoes/chr-frodo_Modeling_v0051_frodo_shoes_and_gloves_BaseColor_ACES - ACEScg.1001.png"
-    ),
-    # eye left
-    "chr_frodo_Rigging:eye_l":os.path.join(
-        base_dir,
-        get_version(frodo_path),
-        "frodo_eyes/chr-frodo_Modeling_v0051_frodo_eyes_BaseColor_ACES - ACEScg.1001.png"
-    ),
-    # eye right
-    "chr_frodo_Rigging:eye_r":os.path.join(
-        base_dir,
-        get_version(frodo_path),
-        "frodo_eyes/chr-frodo_Modeling_v0051_frodo_eyes_BaseColor_ACES - ACEScg.1001.png"
-    ),
-    # frodo legs
-    "chr_frodo_Rigging:chr_frodo_Modeling:leggy_boy":os.path.join(
-        base_dir,
-        get_version(frodo_path),
-        "frodo_skin/chr-frodo_Modeling_v0051_frodo_skin_BaseColor_ACES - ACEScg.1001.png"
-    ),
-    # frodo torso
-    "chr_frodo_Rigging:chr_frodo_Modeling:toxic_body_standards":os.path.join(
-        base_dir,
-        get_version(frodo_path),
-        "frodo_skin/chr-frodo_Modeling_v0051_frodo_skin_BaseColor_ACES - ACEScg.1001.png"
-    ),
-    # bed frame
-    "set_room_Layout:prp_bed_Rigging:prp_bed_Modeling:bedframe":os.path.join(
-        base_dir,
-        get_version(bed_path),
-        "bed_frame/prp-bed_Modeling_v0020_bed_frame_mat_BaseColor_ACES - ACEScg.1001.png"
-    ),
-    # bed pillow
-    "set_room_Layout:prp_pillow_Modeling:fat_pillow_mod":os.path.join(
-       "M:/frogging_hell_prism/02_Library/Assets/Props/prp - pillow/Export/Texturing/v001"
-    ),
-    # bed matress
-    "set_room_Layout:prp_bed_Rigging:prp_bed_Modeling:prp_mattress":os.path.join(
-        base_dir,
-        get_version(bed_path),
-        "bed_matress/prp-bed_Modeling_v0020_matress_mat_BaseColor_ACES - ACEScg.1001.png"
-    ),
-}
+    "mattes_dict":{
+        "set_room_Layout:door_plane":os.path.join(
+            base_dir,
+            matte_path,
+            "projection_walls-door_plane.png"
+        ),
+        "set_room_Layout:floor_plane_right":os.path.join(
+            base_dir,
+            matte_path,
+            "projection_walls-floor_plane.png"
+        ),
+        "set_room_Layout:walls_but_thick_right_seperate"
+        "":os.path.join(
+            base_dir,
+            matte_path,
+            "projection_walls-walls_but_thick_right_seperate.png"
+        ),
+        "set_room_Layout:walls_but_thick_right":os.path.join(
+            base_dir,
+            matte_path,
+            "projection_walls-walls_but_thick_right.png"
+        ),
+        "set_room_Layout:walls_but_thick_left":os.path.join(
+            base_dir,
+            matte_path,
+            "projection_walls-walls_but_thick_left.png"
+        ),
+        "set_room_Layout:walls_but_thick_left_seperate":os.path.join(
+            base_dir,
+            matte_path,
+            "projection_walls-walls_but_thick_left_seperate.png"
+        ),
+        "set_room_Layout:window_plane":os.path.join(
+            base_dir,
+            matte_path,
+            "projection_walls-window_plane.png"
+        )
+    },
+    "chr_frodo_rig_dict":{
+        # frodo pants
+        "chr_frodo_Rigging:chr_frodo_Modeling:frog_whole_pants":os.path.join(
+            base_dir,
+            get_version(frodo_path),
+            "frodo_pants/chr-frodo_Modeling_v0051_frodo_pants_BaseColor_ACES - ACEScg.1001.png"
+        ),
+        # frodo gloves
+        "chr_frodo_Rigging:chr_frodo_Modeling:grab_grab":os.path.join(
+            base_dir,
+            get_version(frodo_path),
+            "frodo_shoes/chr-frodo_Modeling_v0051_frodo_shoes_and_gloves_BaseColor_ACES - ACEScg.1001.png"
+        ),
+        # frodo shoes
+        "chr_frodo_Rigging:chr_frodo_Modeling:frog_martins":os.path.join(
+            base_dir,
+            get_version(frodo_path),
+            "frodo_shoes/chr-frodo_Modeling_v0051_frodo_shoes_and_gloves_BaseColor_ACES - ACEScg.1001.png"
+        ),
+        # eye left
+        "chr_frodo_Rigging:eye_l":os.path.join(
+            base_dir,
+            get_version(frodo_path),
+            "frodo_eyes/chr-frodo_Modeling_v0051_frodo_eyes_BaseColor_ACES - ACEScg.1001.png"
+        ),
+        # eye right
+        "chr_frodo_Rigging:eye_r":os.path.join(
+            base_dir,
+            get_version(frodo_path),
+            "frodo_eyes/chr-frodo_Modeling_v0051_frodo_eyes_BaseColor_ACES - ACEScg.1001.png"
+        ),
+        # frodo legs
+        "chr_frodo_Rigging:chr_frodo_Modeling:leggy_boy":os.path.join(
+            base_dir,
+            get_version(frodo_path),
+            "frodo_skin/chr-frodo_Modeling_v0051_frodo_skin_BaseColor_ACES - ACEScg.1001.png"
+        ),
+        # frodo torso
+        "chr_frodo_Rigging:chr_frodo_Modeling:toxic_body_standards":os.path.join(
+            base_dir,
+            get_version(frodo_path),
+            "frodo_skin/chr-frodo_Modeling_v0051_frodo_skin_BaseColor_ACES - ACEScg.1001.png"
+        )
+    },
 
-for geo, texture in texture_dict.items():
-    print(f"\nGeometry: {geo}\nTexture:  {texture}")
+    "prp_bed_rig_dict":{
+        # bed frame
+        "set_room_Layout:prp_bed_Rigging:prp_bed_Modeling:bedframe":os.path.join(
+            base_dir,
+            get_version(bed_path),
+            "bed_frame/prp-bed_Modeling_v0020_bed_frame_mat_BaseColor_ACES - ACEScg.1001.png"
+        ),
+        # bed pillow
+        "set_room_Layout:prp_pillow_Modeling:fat_pillow_mod":os.path.join(
+           "M:/frogging_hell_prism/02_Library/Assets/Props/prp - pillow/Export/Texturing/v001"
+        ),
+        # bed matress
+        "set_room_Layout:prp_bed_Rigging:prp_bed_Modeling:prp_mattress":os.path.join(
+            base_dir,
+            get_version(bed_path),
+            "bed_matress/prp-bed_Modeling_v0020_matress_mat_BaseColor_ACES - ACEScg.1001.png"
+        ),
+        # bed balls
+        "set_room_Layout:prp_bed_Rigging:prp_bed_Modeling:balls1":os.path.join(
+            base_dir,
+            get_version(bed_path),
+            "bed_frame/prp-bed_Modeling_v0020_bed_frame_mat_BaseColor_ACES - ACEScg.1002.png"),
+        "set_room_Layout:prp_bed_Rigging:prp_bed_Modeling:balls2":os.path.join(
+            base_dir,
+            get_version(bed_path),
+            "bed_frame/prp-bed_Modeling_v0020_bed_frame_mat_BaseColor_ACES - ACEScg.1002.png"),
+        "set_room_Layout:prp_bed_Rigging:prp_bed_Modeling:balls3":os.path.join(
+            base_dir,
+            get_version(bed_path),
+            "bed_frame/prp-bed_Modeling_v0020_bed_frame_mat_BaseColor_ACES - ACEScg.1002.png"),
+        "set_room_Layout:prp_bed_Rigging:prp_bed_Modeling:balls4":os.path.join(
+            base_dir,
+            get_version(bed_path),
+            "bed_frame/prp-bed_Modeling_v0020_bed_frame_mat_BaseColor_ACES - ACEScg.1002.png")
+    }
+}
