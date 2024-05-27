@@ -1,8 +1,10 @@
 import os
 
 base_dir = "M:/frogging_hell_prism/02_Library/Assets"
-frodo_path = "Character/chr-frodo/Export/Texturing"
+"""MAKE DIRTY AND CLEAN SWITCH!!!!"""
+frodo_path = "Character/chr-frodo/Export/Texturing/clean"
 bed_path = "Props/prp-bed/Export/Texturing/Texturing_var_1"
+matte_path = "Sets/set-room/Export/Texturing/v002/main_walls"
 
 
 def get_version(input_path):
@@ -29,8 +31,49 @@ matte_list = ["set_room_Layout:door_plane",
               "set_room_Layout:left",
               "set_room_Layout:walls_but_thick_right",
               "set_room_Layout:walls_but_thick_right_seperate",
-              "set_room_Layout:projection_geo"
+              "set_room_Layout:projection_geo",
+              "set_room_Layout:walls_but_thick_left",
+              "set_room_Layout:walls_but_thick_left_seperate"
               ]
+
+matte_dict = {
+    "set_room_Layout:door_plane":os.path.join(
+        base_dir,
+        matte_path,
+        "projection_walls-door_plane.png"
+    ),
+    "set_room_Layout:floor_plane_right":os.path.join(
+        base_dir,
+        matte_path,
+        "projection_walls-floor_plane.png"
+    ),
+    "set_room_Layout:walls_but_thick_right_seperate"
+    "":os.path.join(
+        base_dir,
+        matte_path,
+        "projection_walls-walls_but_thick_right_seperate.png"
+    ),
+    "set_room_Layout:walls_but_thick_right":os.path.join(
+        base_dir,
+        matte_path,
+        "projection_walls-walls_but_thick_right.png"
+    ),
+    "set_room_Layout:walls_but_thick_left":os.path.join(
+        base_dir,
+        matte_path,
+        "projection_walls-walls_but_thick_left.png"
+    ),
+    "set_room_Layout:walls_but_thick_left_seperate":os.path.join(
+        base_dir,
+        matte_path,
+        "projection_walls-walls_but_thick_left_seperate.png"
+    ),
+    "set_room_Layout:window_plane":os.path.join(
+        base_dir,
+        matte_path,
+        "projection_walls-window_plane.png"
+    )
+}
 
 texture_dict = {
     # frodo pants
