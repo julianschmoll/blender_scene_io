@@ -19,6 +19,19 @@ def get_version(input_path):
             max_version_folder = version_folder
     return os.path.join(input_path, max_version_folder)
 
+matte_list = ["set_room_Layout:door_plane",
+              "set_room_Layout:main_left_grp",
+              "set_room_Layout:floor_plane_left",
+              "set_room_Layout:window_plane",
+              "set_room_Layout:main_right_grp",
+              "set_room_Layout:floor_plane_right",
+              "set_room_Layout:main_walls_grp",
+              "set_room_Layout:left",
+              "set_room_Layout:walls_but_thick_right",
+              "set_room_Layout:walls_but_thick_right_seperate",
+              "set_room_Layout:projection_geo"
+              ]
+
 texture_dict = {
     # frodo pants
     "chr_frodo_Rigging:chr_frodo_Modeling:frog_whole_pants":os.path.join(
@@ -62,23 +75,17 @@ texture_dict = {
         get_version(frodo_path),
         "frodo_skin/chr-frodo_Modeling_v0051_frodo_skin_BaseColor_ACES - ACEScg.1001.png"
     ),
-    # bed balls
-    
-    # bed balls
-    "set_room_Layout:prp_bed_Rigging:prp_bed_Modeling:balls4":
-        [
-            # first udim
-            os.path.join(
-            base_dir,
-            get_version(bed_path),
-            "bed_frame/prp-bed_Modeling_v0020_bed_frame_mat_BaseColor_ACES - ACEScg.1001.png"),
-            # second udim
-            os.path.join(
-            base_dir,
-            get_version(bed_path),
-            "bed_frame/prp-bed_Modeling_v0020_bed_frame_mat_BaseColor_ACES - ACEScg.1002.png")
-        ],
-    # bef matress
+    # bed frame
+    "set_room_Layout:prp_bed_Rigging:prp_bed_Modeling:bedframe":os.path.join(
+        base_dir,
+        get_version(bed_path),
+        "bed_frame/prp-bed_Modeling_v0020_bed_frame_mat_BaseColor_ACES - ACEScg.1001.png"
+    ),
+    # bed pillow
+    "set_room_Layout:prp_pillow_Modeling:fat_pillow_mod":os.path.join(
+       "M:/frogging_hell_prism/02_Library/Assets/Props/prp - pillow/Export/Texturing/v001"
+    ),
+    # bed matress
     "set_room_Layout:prp_bed_Rigging:prp_bed_Modeling:prp_mattress":os.path.join(
         base_dir,
         get_version(bed_path),
