@@ -38,7 +38,7 @@ def load_shot(shot_caches):
         LOGGER.info(f"Loaded and sorted {cache_name} in collection")
         bpy.ops.object.select_all(action='DESELECT')
     camera_setup()
-    material_assigner.texture_objects_in_scene()
+    material_assigner.slim_shade()
 
 # create collection
 def create_collection(cache_name):
