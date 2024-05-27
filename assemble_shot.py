@@ -1,11 +1,11 @@
 from blender_scene_io import material_assigner
+from blender_scene_io import texture_dictionary
 
 import logging
 import bpy
 import os
 from mathutils import Vector
 
-import texture_dictionary
 
 LOGGER = logging.getLogger("Frogging Hell Menu")
 
@@ -31,8 +31,8 @@ def load_shot(shot_caches):
         bpy.context.active_object.scale=(0.01,0.01,0.01)
         for obj in bpy.context.selected_objects:
             if deselect_matte(obj):
-                bpy.data.collections["stati"].objects.unlink(obj)
-                bpy.data.collections[wall_collection].objects.link(obj)
+                bpy.context.scene.collection.objects.unlink(obj)
+                bpy.data.collections[wall_collection.name].objects.link(obj)
             else:
                 link_to_collection(obj,cache_name)
         LOGGER.info(f"Loaded and sorted {cache_name} in collection")
