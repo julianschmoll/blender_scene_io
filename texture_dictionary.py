@@ -133,7 +133,17 @@ texture_dict = {
             base_dir,
             get_version(frodo_path),
             "frodo_skin/chr-frodo_Modeling_v0051_frodo_skin_BaseColor_ACES - ACEScg.1001.png"
-        )
+        ),
+        # eye lid left
+        "chr_frodo_Rigging:eye_l_lower_lid":os.path.join(
+            "M:/frogging_hell_prism/06_Artist/DAS_ROB/chr-frodo_skin_BaseColor_ACES - ACEScg.1001.png"),
+        # eye lid right
+        "chr_frodo_Rigging:eye_r_lower_lid":os.path.join(
+            "M:/frogging_hell_prism/06_Artist/DAS_ROB/chr-frodo_skin_BaseColor_ACES - ACEScg.1001.png"),
+        "chr_frodo_Rigging:eye_l_upper_lids":os.path.join(
+            "M:/frogging_hell_prism/06_Artist/DAS_ROB/chr-frodo_skin_BaseColor_ACES - ACEScg.1001.png"),
+        "chr_frodo_Rigging:eye_r_upper_lid":os.path.join(
+            "M:/frogging_hell_prism/06_Artist/DAS_ROB/chr-frodo_skin_BaseColor_ACES - ACEScg.1001.png"),
     },
 
     "prp_bed_rig_dict":{
@@ -172,3 +182,32 @@ texture_dict = {
             "bed_frame/prp-bed_Modeling_v0020_bed_frame_mat_BaseColor_ACES - ACEScg.1002.png")
     }
 }
+painting_dict = {
+    # gertie
+    #"set_room_Layout:gertie1":os.path.join(
+    #        "M:/frogging_hell_prism/06_Artist/random/2DAssets/02_export/gertie.png"),
+    # standing frame
+    # "set_room_Layout:prp_standing_frame_h_Rigging:prp_standing_frame":os.path.join(
+    #        base_dir,
+    #        "Props/prp-standing-frame/Export/Texturing/prp_standing_frame_Modeling_frame.png"),
+    # standing frame horizontal
+    "set_room_Layout:prp_standing_frame_Rigging:prp_standing_frame_M":os.path.join(
+            base_dir,
+            "Props/prp-standing-frame/Export/Texturing/prp_standing_frame_Modeling_frame.png"),
+    # urne
+    #"set_room_Layout:prp_urn_flip_Modeling:urn":os.path.join(
+    #        base_dir,
+    #        "Props/prp-urn-flip/Export/Texturing/v001/prp-urn-flip_Modeling_v0003_DefaultMaterial_BaseColor_ACES - ACEScg.1001.png"),
+    # tintoy
+    #"set_room_Layout:tintoy1":os.path.join(
+    #        "M:/frogging_hell_prism/06_Artist/random/2DAssets/02_export/TinToy.png"),
+    # canvas 2
+    "set_room_Layout:prp_canvas_02_Modeling:canvas":os.path.join(
+            base_dir,
+            "Props/prp-canvas-02/Export/Texturing/v001/projection1-canvas.png"),
+    # canvas 3
+    "set_room_Layout:prp_canvas_03_Modeling:prp_canvas":os.path.join(
+            base_dir,
+            "Props/prp-canvas-03/Export/Texturing/v001/projection1-prp_canvas.png")
+    }
+
