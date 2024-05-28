@@ -42,6 +42,12 @@ def load_shot(shot_caches):
 
 # create collection
 def create_collection(cache_name):
+    """
+    This function takes the cache name and creates a collection named after the cache.
+    The function returns the created collection
+    :param cache_name:
+    :return:
+    """
     bpy.data.collections.new(cache_name)
     bpy.context.scene.collection.children.link(bpy.data.collections[cache_name])
     return bpy.data.collections[cache_name]
@@ -49,7 +55,9 @@ def create_collection(cache_name):
 
 # get root of imported cache
 def get_root(cache):
-    """Get the root of an object hierarchy here"""
+    """
+    This function gets the root of an object hierarchy here
+    """
     parent = cache.parent
     # check if parent exists
     if parent:
@@ -59,7 +67,9 @@ def get_root(cache):
 
 # get root of import
 def get_imported_root_objects(imported_objects):
-    """Get the root object of cache"""
+    """
+    This function gets the root object of cache by using get_root()
+    """
     imported_root = ""
     for ob in imported_objects:
         imported_root = get_root(ob)
@@ -68,7 +78,10 @@ def get_imported_root_objects(imported_objects):
 
 # import alembic cache
 def import_alembic(cache):
-    """Import cache and return names of import."""
+    """
+    This function imports the cache.
+    The function retruns the cached objects
+    """
     # Get current objects before import
     pre_import_objects = set(bpy.context.scene.objects)
     # Import the cache
@@ -82,27 +95,28 @@ def import_alembic(cache):
 
 # link root to collection named after import
 def link_to_collection(root_object, collection):
-    """Unlink imported root from other collections and link it to the new created collection"""
+    """
+    This function unlinks imported root from other collections and links it to the new created collection
+    """
     bpy.context.scene.collection.objects.unlink(root_object)
     bpy.data.collections[collection].objects.link(root_object)
 
 
 # get cache name from path
 def split_cache(cache):
+    """
+    This function takes a cache and splits it name.
+    It returns the name of the cache
+    :param cache:
+    :return:
+    """
     cache_name = os.path.basename(cache)
     return cache_name.split("_")[-1].rstrip(".abc")
 
-
-def get_children(root_object):
-    children = []
-    for child in root_object.children:
-        children.append(child)
-        if child.children:
-            get_children(child)
-    return children
-
 def clear_that_beeeeeach():
-    # only worry about data in the startup scene
+    """
+    This function clears the default scene.
+    """
     for bpy_data_iter in (
             bpy.data.objects,
             bpy.data.meshes,
@@ -114,6 +128,10 @@ def clear_that_beeeeeach():
             bpy_data_iter.remove(id_data)
 
 def camera_setup():
+    """
+    This function takes care of the camera settings.
+    It creates the driver and uses the pan_locator to match the camera move from maya.
+    """
     # get pos of main ctrl
     LOGGER.info(bpy.context.scene.objects["set_room_Layout:prp_camera_Rigging:cam_main_ctrl"].location)
     # create cam on main ctrl pos
@@ -148,6 +166,36 @@ def camera_setup():
     link_to_collection(render_cami, "cami")
 
 def deselect_matte(obj):
+    """
+    This function is used to sort the matte paintings in a collection
+    This function returns True if the input object si in the matte dictionary.
+    """
     for element in texture_dictionary.matte_list:
         if obj.name == element:
             return True
+
+def set_render_path(shot_name):
+    """
+    This function sets the render path for the blend file and for the viewer node.
+    It also creates the /out/Render dir if they do not exist
+    """
+    # directory for all shots
+    base_dir = "M:/frogging_hell_prism/02_Library/Shots/"
+    base_out = "/Rendering/3dRender/"
+    # save file
+    file_path = os.path.join(base_dir + shot_name+ "/Scenefiles/out/Render/")
+    # check if renderpath exists if not create missing files
+    if not os.path.exists(file_path):
+        os.makedirs(os.path.join(base_dir + shot_name+ "/Scenefiles/out/Render/"), exist_ok=True)
+    LOGGER.info(os.path.join(base_dir + shot_name + base_out + shot_name))
+    # check if curretn version exists and increment before safe if so
+    #if os.path.exists(os.path.join(base_dir + shot_name+ "/Scenefiles/out/Render/" + shot_name + ".blend")):
+    # bpy.ops.wm.save_as_mainfile(filepath=os.path.join(base_dir + shot_name+ "/Scenefiles/out/Render/" + shot_name + ".blend"))
+    # save as
+    # bpy.ops.wm.save_as_mainfile(filepath=filepath)
+    # if filename:
+    bpy.context.scene.render.filepath = os.path.join(base_dir + shot_name + base_out + shot_name + "_")
+    render_path = bpy.context.scene.render.filepath
+    # output node render path as well
+    bpy.context.scene.node_tree.nodes["File Output"].base_path = render_path
+    return render_path
