@@ -18,22 +18,12 @@ def texture_path(collection, input_dictionary):
     # iterate through input collection
     for obj in bpy.data.collections[collection.name].objects:
         # if object is a mesh continue
-        if obj.type == 'MESH':
-            # go through dictionaries in big dictionary
-            for key in texture_dictionary.texture_dict:
-                # check if collection has a key in big dictionary
-                if key == input_dictionary:
-                    for input_key in texture_dictionary.texture_dict[input_dictionary]:
-                        # check if names are the same
-                        if obj.name != input_key:
-                            # if not go to next key
-                            continue
-                        else:
-                            # check if texture image exists
-                            if os.path.exists(texture_dictionary.texture_dict[input_dictionary][input_key]):
-                                texture_material = input_key.split(":")[-1]
-                                # create new material named after key
-                                create_image_texture_material(obj, texture_material, texture_dictionary.texture_dict[input_dictionary][input_key])
+        if obj.name in texture_dictionary.texture_dict[input_dictionary]:
+            # check if texture image exists
+            if os.path.exists(texture_dictionary.texture_dict[input_dictionary][obj.name]):
+                texture_material = obj.name.split(":")[-1]
+                # create new material named after key
+                create_image_texture_material(obj, texture_material, texture_dictionary.texture_dict[input_dictionary][obj.name])
 
 def create_image_texture_material(obj,texture_material,path):
     """
@@ -169,9 +159,13 @@ def shade_teeth():
 
 def slim_shade():
     LOGGER.info("Running Shader Script...")
-    painting_texture()
     shade_teeth()
     for collection in bpy.data.collections:
-        if collection.name != "cami":
-            texture_path(collection, collection.name.replace("-","_")+"_dict")
+        if collection.name == "cami":
+            continue
+        else:
             guilded_grease(collection)
+            if collection.name == "stati":
+                painting_texture()
+            else:
+                texture_path(collection, collection.name.replace("-","_")+"_dict")
