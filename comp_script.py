@@ -1,4 +1,5 @@
 from blender_scene_io import texture_dictionary
+from blender_scene_io import assemble_shot
 
 import bpy
 import logging
@@ -27,13 +28,17 @@ def basic_comp_setup():
     # bed_cryptomatte_node = nodetree.nodes.new("CompositorNodeCryptomatteV2")
     # add file output node
     output_node = nodetree.nodes.new("CompositorNodeOutputFile")
+    # add viewer node
+    viewer_node = nodetree.nodes.new("CompositorNodeViewer")
     # add slots ro node
+    LOGGER.info(output_node.name)
     output_node.layer_slots.new("Cryptomatte_Frodo")
     output_node.layer_slots.new("Cryptomatte_Bed")
     # place nodes in comp space
     frodo_cryptomatte_node.location = (400,400)
     #bed_cryptomatte_node.location = (400,-200)
     output_node.location = (1000,100)
+    viewer_node.location = (1000, 400)
     render_layer_node.location = (0,200)
     # ---------------------------------------------------------------------------- connecting nodes
     # render layer to output
@@ -42,8 +47,10 @@ def basic_comp_setup():
     nodetree.links.new(frodo_cryptomatte_node.outputs["Image"],output_node.inputs["Cryptomatte_Frodo"])
     #nodetree.links.new(bed_cryptomatte_node.outputs["Matte"]),output_node.inputs["Cryptomatte_Bed"]
     # render layer to cryptomatte
-    nodetree.links.new(render_layer_node.outputs["Image"],frodo_cryptomatte_node.inputs[0])
-    nodetree.links.new(render_layer_node.outputs["Image"],bed_cryptomatte_node.inputs[0])
+    nodetree.links.new(render_layer_node.outputs["Image"],frodo_cryptomatte_node.inputs["Image"])
+    # cryptomatte to viewer
+    nodetree.links.new(frodo_cryptomatte_node.outputs["Matte"], viewer_node.inputs["Image"])
+    # nodetree.links.new(render_layer_node.outputs["Image"],bed_cryptomatte_node.inputs[0])
     frodo_cryptomatte_node.layer_name = 'ViewLayer.CryptoMaterial'
     #bed_cryptomatte_node.layer_name = 'ViewLayer.CryptoMaterial'
     pick_cryptomatte_materials(texture_dictionary.frodo_list,frodo_cryptomatte_node)
