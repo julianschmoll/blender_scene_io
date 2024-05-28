@@ -25,14 +25,3 @@ def set_render_settings():
     bpy.context.scene.view_layers["ViewLayer"].use_pass_diffuse_color = True
     bpy.context.scene.view_layers["ViewLayer"].use_pass_cryptomatte_object = True
     bpy.context.scene.view_layers["ViewLayer"].use_pass_cryptomatte_material = True
-
-    # export path
-    filename = bpy.path.basename(bpy.data.filepath)
-    filename = os.path.splitext(filename)[0]
-    if filename:
-        bpy.context.scene.render.filepath = os.path.join(
-            "M:/frogging_hell_prism/02_Library/Shots/000-pipeline/Rendering/3dRender",
-            filename,
-            f"{filename}_"
-        )
-
