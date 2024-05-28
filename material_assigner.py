@@ -78,8 +78,10 @@ def create_image_texture_material(obj,texture_material,path):
     texture_node.image.colorspace_settings.name = 'ACES - ACEScg'
     # bpy.data.images["chr-frodo_Modeling_v0051_frodo_skin_BaseColor_ACES - ACEScg.001"].colorspace_settings.name = 'ACES - ACEScg'
 
-def cel_shade():
-    """This function creates a Cel Shader and assigns it to all objects in the stati collection"""
+def cel_shade(obj):
+    """
+    This function creates a Cel Shader and assigns it to all objects in the stati collection
+    """
     # create Cel Shader material
     bpy.data.materials.new('Cel Shader')
     # get Cel Shader material
@@ -92,25 +94,21 @@ def cel_shade():
     nodes = cel_shader.node_tree.nodes
     links = cel_shader.node_tree.links
     # create nodes
-    bsdf_node = nodes.new(type='ShaderNodeBsdfPrincipled')
-    shader_to_rgb_node = nodes.new(type='ShaderNodeShaderToRGB')
     color_ramp_node = nodes.new(type='ShaderNodeValToRGB')
     output_node = nodes.new(type='ShaderNodeOutputMaterial')
     # place nodes
-    bsdf_node.location = (0, 200)
-    shader_to_rgb_node.location = (400,200)
     color_ramp_node.location = (800,200)
     output_node.location = (1200, 200)
     # connect nodes
-    links.new(bsdf_node.outputs['BSDF'],shader_to_rgb_node.inputs['Shader'])
-    links.new(shader_to_rgb_node.outputs['Color'],color_ramp_node.inputs['Fac'])
     links.new(color_ramp_node.outputs['Color'],output_node.inputs['Surface'])
     # loop through all objects in stati and assign the shader
-    for obj in bpy.data.collections['stati'].objects:
-        if obj.type=='MESH':
-            obj.data.materials.append(cel_shader)
+    obj.data.materials.append(cel_shader)
 
 def guilded_grease(collection):
+    """
+    :param collection: Collection to apply the grease pencil line art object on
+    :return: the newly created line art object
+    """
     # create gpencil and name it
     gpencil_data = bpy.data.grease_pencils.new(name=collection.name)
     gpencil_object = bpy.data.objects.new(name=collection.name + "_GP", object_data=gpencil_data)
@@ -144,9 +142,35 @@ def guilded_grease(collection):
     # Return the created Grease Pencil object
     return gpencil_object
 
+def painting_texture():
+    for obj in bpy.data.collections["stati"].objects:
+        # if object is a mesh continue
+        if obj.type == 'MESH':
+            # go through dictionaries in big dictionary
+            if obj.name in texture_dictionary.painting_dict:
+                # check if texture image exists
+                if os.path.exists(texture_dictionary.painting_dict[obj.name]):
+                    texture_material = obj.name.split(":")[-1]
+                    # create new material named after key
+                    create_image_texture_material(obj, texture_material, texture_dictionary.painting_dict[obj.name])
+
+            else:
+                # if not go to next key
+                cel_shade(obj)
+
+def shade_teeth():
+    """
+    This function shades the teeth
+    :return:
+    """
+    for obj in bpy.data.collections["chr-frodo-rig"].objects:
+        if (obj.type == "MESH") and ("teeth" in obj.name):
+            cel_shade(obj)
+
 def slim_shade():
     LOGGER.info("Running Shader Script...")
-    cel_shade()
+    painting_texture()
+    shade_teeth()
     for collection in bpy.data.collections:
         if collection.name != "cami":
             texture_path(collection, collection.name.replace("-","_")+"_dict")
