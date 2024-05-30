@@ -29,12 +29,23 @@ def load_shot(shot_caches):
         # get root again
         root_object.select_set(True)
         bpy.context.active_object.scale=(0.01,0.01,0.01)
+         # do this for the newly imported objects
         for obj in bpy.context.selected_objects:
-            if deselect_matte(obj):
-                bpy.context.scene.collection.objects.unlink(obj)
-                bpy.data.collections[wall_collection.name].objects.link(obj)
+            # if the cache is static
+            if cache_name == "stati":
+                # if it a matte
+                if deselect_matte(obj):
+                    obj.name = obj.name.partition("Layout:")[2]
+                    bpy.context.scene.collection.objects.unlink(obj)
+                    bpy.data.collections[wall_collection.name].objects.link(obj)
+                # if it is everything else
+                else:
+                    obj.name = obj.name.partition("Layout:")[2]
+                    link_to_collection(obj,cache_name)
             else:
-                link_to_collection(obj,cache_name)
+                if "frodo" not in obj.name:
+                    obj.name = obj.name.partition("Layout:")[2]
+                link_to_collection(obj, cache_name)
         LOGGER.info(f"Loaded and sorted {cache_name} in collection")
         bpy.ops.object.select_all(action='DESELECT')
     camera_setup()
@@ -133,13 +144,13 @@ def camera_setup():
     It creates the driver and uses the pan_locator to match the camera move from maya.
     """
     # get pos of main ctrl
-    LOGGER.info(bpy.context.scene.objects["set_room_Layout:prp_camera_Rigging:cam_main_ctrl"].location)
+    LOGGER.info(bpy.context.scene.objects["prp_camera_Rigging:cam_main_ctrl"].location)
     # create cam on main ctrl pos
     mult_vector = Vector([0.01,0.01,0.01])
     bpy.ops.object.camera_add(
-        location=((bpy.context.scene.objects["set_room_Layout:prp_camera_Rigging:cam_main_ctrl"].location.x*mult_vector.x),
-                  (bpy.context.scene.objects["set_room_Layout:prp_camera_Rigging:cam_main_ctrl"].location.y*mult_vector.y),
-                  (bpy.context.scene.objects["set_room_Layout:prp_camera_Rigging:cam_main_ctrl"].location.z*mult_vector.z)),
+        location=((bpy.context.scene.objects["prp_camera_Rigging:cam_main_ctrl"].location.x*mult_vector.x),
+                  (bpy.context.scene.objects["prp_camera_Rigging:cam_main_ctrl"].location.y*mult_vector.y),
+                  (bpy.context.scene.objects["prp_camera_Rigging:cam_main_ctrl"].location.z*mult_vector.z)),
         rotation=[1.5708, 0, 0])
     render_cami = bpy.context.active_object
     render_cami.name = "RENDER_CAMI"
@@ -170,9 +181,8 @@ def deselect_matte(obj):
     This function is used to sort the matte paintings in a collection
     This function returns True if the input object si in the matte dictionary.
     """
-    for element in texture_dictionary.matte_list:
-        if obj.name == element:
-            return True
+    if obj.name in texture_dictionary.matte_list:
+        return True
 
 def set_render_path(shot_name):
     """
