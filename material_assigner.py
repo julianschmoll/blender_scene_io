@@ -7,7 +7,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger("blender_scene_io")
 
-def texture_path(collection, input_dictionary):
+def texture_path(collection):
     """This function finds a texture for every object that has one.
         The function iterates through all objects in the input collection.
         If it's a mesh and has a key, this function will use the function create_image_texture_material
@@ -18,12 +18,15 @@ def texture_path(collection, input_dictionary):
     # iterate through input collection
     for obj in bpy.data.collections[collection.name].objects:
         # if object is a mesh continue
-        if obj.name in texture_dictionary.texture_dict[input_dictionary]:
-            # check if texture image exists
-            if os.path.exists(texture_dictionary.texture_dict[input_dictionary][obj.name]):
-                texture_material = obj.name.split(":")[-1]
-                # create new material named after key
-                create_image_texture_material(obj, texture_material, texture_dictionary.texture_dict[input_dictionary][obj.name])
+        if obj.type == 'MESH':
+            if obj.name in texture_dictionary.texture_dict:
+                # check if texture image exists
+                if os.path.exists(texture_dictionary.texture_dict[obj.name]):
+                    texture_material = obj.name.split(":")[-1]
+                    # create new material named after key
+                    create_image_texture_material(obj, texture_material, texture_dictionary.texture_dict[obj.name])
+            else:
+                cel_shade(obj)
 
 def create_image_texture_material(obj,texture_material,path):
     """
@@ -72,6 +75,7 @@ def cel_shade(obj):
     """
     This function creates a Cel Shader and assigns it to all objects in the stati collection
     """
+    LOGGER.info(obj)
     # create Cel Shader material
     bpy.data.materials.new('Cel Shader')
     # get Cel Shader material
@@ -132,21 +136,6 @@ def guilded_grease(collection):
     # Return the created Grease Pencil object
     return gpencil_object
 
-def painting_texture():
-    for obj in bpy.data.collections["stati"].objects:
-        # if object is a mesh continue
-        if obj.type == 'MESH':
-            # go through dictionaries in big dictionary
-            if obj.name in texture_dictionary.painting_dict:
-                # check if texture image exists
-                if os.path.exists(texture_dictionary.painting_dict[obj.name]):
-                    texture_material = obj.name.split(":")[-1]
-                    # create new material named after key
-                    create_image_texture_material(obj, texture_material, texture_dictionary.painting_dict[obj.name])
-
-            else:
-                # if not go to next key
-                cel_shade(obj)
 
 def shade_teeth():
     """
@@ -165,7 +154,4 @@ def slim_shade():
             continue
         else:
             guilded_grease(collection)
-            if collection.name == "stati":
-                painting_texture()
-            else:
-                texture_path(collection, collection.name.replace("-","_")+"_dict")
+            texture_path(collection)
