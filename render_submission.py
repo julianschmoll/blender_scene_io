@@ -22,11 +22,7 @@ def submit_render():
     )
     LOGGER.info(f"Submitting to Renderpal with: \n{cmd}")
     run_wake_up_bats()
-    subprocess.Popen(
-        cmd,
-        shell=True,
-        stdout=subprocess.PIPE
-    )
+    subprocess.Popen(cmd)
 
 
 def assemble_cmd(render_name, import_set, scene_path, chunk_size=10):
@@ -70,8 +66,8 @@ def get_frame_ramge():
 
 def run_wake_up_bats():
     LOGGER.info("Waking up computers :)")
-    subprocess.Popen("K:/wake_042.bat")
-    subprocess.Popen("K:/wake_043.bat")
+    subprocess.Popen("K:/wake_042.bat", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    subprocess.Popen("K:/wake_043.bat", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 
 
 def get_renderpal_exe():
