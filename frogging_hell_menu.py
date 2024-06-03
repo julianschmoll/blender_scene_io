@@ -1,4 +1,5 @@
 from blender_scene_io import assemble_shot
+from blender_scene_io import render_submission
 
 import bpy
 import os
@@ -16,9 +17,15 @@ class FrogMenu(bpy.types.Menu):
 
     def draw(self, context):
         layout = self.layout
-        layout.label(text="Common Tools", icon='RENDER_ANIMATION')
+        layout.label(text="Import", icon='IMPORT')
         layout.menu("OBJECT_MT_shot_assembly_menu", icon="ASSET_MANAGER")
-
+        layout.separator()
+        layout.label(text="Export", icon='EXPORT')
+        layout.operator(
+            "object.render_submission_operator",
+            text=f"Submit to Renderpal",
+            icon='RENDER_ANIMATION'
+        )
 
 class AssembleShotSubMenu(bpy.types.Menu):
     bl_label = "Assemble Shot"
@@ -57,8 +64,18 @@ class ImportShot(bpy.types.Operator):
         self.report({"INFO"}, f"Executing Shot Assembly for {self.shot_name}")
         """ASSEMBLE SHOT HERE"""
         assemble_shot.load_shot(shot_caches)
-        assemble_shot.set_render_path(self.shot_name)
+        #assemble_shot.set_render_path(self.shot_name)
         LOGGER.info("Finished Import")
+        return {'FINISHED'}
+
+class RenderShot(bpy.types.Operator):
+    """Submit Job to render with RenderPal"""
+    bl_label = "Render Submission Operator"
+    bl_idname = "object.render_submission_operator"
+
+    def execute(self, context):
+        LOGGER.info("Submitting Job")
+        render_submission.submit_render()
         return {'FINISHED'}
 
 
@@ -105,6 +122,7 @@ def draw_menu(self, context):
 def register():
     bpy.utils.register_class(FrogMenu)
     bpy.utils.register_class(ImportShot)
+    bpy.utils.register_class(RenderShot)
     bpy.utils.register_class(AssembleShotSubMenu)
     bpy.types.TOPBAR_MT_editor_menus.append(draw_menu)
 
@@ -114,3 +132,4 @@ def unregister():
     bpy.utils.unregister_class(ImportShot)
     bpy.utils.unregister_class(AssembleShotSubMenu)
     bpy.utils.unregister_class(FrogMenu)
+    bpy.utils.unregister_class(RenderShot)
