@@ -63,8 +63,7 @@ class ImportShot(bpy.types.Operator):
         LOGGER.info(f"Executing Shot Assembly for {self.shot_name}")
         self.report({"INFO"}, f"Executing Shot Assembly for {self.shot_name}")
         """ASSEMBLE SHOT HERE"""
-        assemble_shot.load_shot(shot_caches)
-        #assemble_shot.set_render_path(self.shot_name)
+        assemble_shot.load_shot(shot_caches, self.shot_name)
         LOGGER.info("Finished Import")
         return {'FINISHED'}
 
