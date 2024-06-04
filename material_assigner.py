@@ -7,7 +7,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger("material")
 
-def texture_path(collection):
+def texture_path(collection,texture_dict):
     """This function finds a texture for every object that has one.
         The function iterates through all objects in the input collection.
         If it's a mesh and has a key, this function will use the function create_image_texture_material
@@ -19,17 +19,12 @@ def texture_path(collection):
     for obj in bpy.data.collections[collection.name].objects:
         # if object is a mesh continue
         if obj.type == 'MESH':
-            if obj.name not in texture_dictionary.matte_list:
-                subsurf = obj.modifiers.new(name='Subdivision', type='SUBSURF')
-                subsurf.levels = 0
-                subsurf.render_levels = 2
-            if obj.name in texture_dictionary.texture_dict:
+            if obj.name in texture_dict["textures"]:
                 # check if texture image exists
-                if os.path.exists(texture_dictionary.texture_dict[obj.name]):
-                    LOGGER.info(obj.name)
-                    texture_material = obj.name.split(":")[-1]
-                    # create new material named after key
-                    create_image_texture_material(obj, texture_material, texture_dictionary.texture_dict[obj.name])
+                LOGGER.info(obj.name)
+                texture_material = obj.name.split(":")[-1]
+                # create new material named after key
+                create_image_texture_material(obj, texture_material, texture_dict["textures"][obj.name])
             else:
                 cel_shade(obj)
 
@@ -141,24 +136,27 @@ def guilded_grease(collection):
     # Return the created Grease Pencil object
     return gpencil_object
 
-def shade_teeth():
+def shade_teeth(collection):
     """
     This function shades the teeth
     :return:
     """
-    for coll in bpy.data.collections:
-        if "frodo" in coll.name:
-            for obj in coll.objects:
-                if (obj.type == "MESH") and ("teeth" in obj.name):
-                    cel_shade(obj)
+    if "frodo" in collection.name:
+        for obj in collection.objects:
+            if (obj.type == "MESH") and ("teeth" in obj.name):
+                cel_shade(obj)
 
-def slim_shade():
+def slim_shade(texture_dict):
     LOGGER.info("Running Shader Script...")
-    shade_teeth()
     for collection in bpy.data.collections:
         if "cami" in collection.name:
             continue
         else:
+            shade_teeth()
             if "mattes" not in collection.name:
                 guilded_grease(collection)
-            texture_path(collection)
+                for obj in bpy.data.collections[collection.name]:
+                    subsurf = obj.modifiers.new(name='Subdivision', type='SUBSURF')
+                    subsurf.levels = 0
+                    subsurf.render_levels = 2
+            texture_path(collection,texture_dict)
