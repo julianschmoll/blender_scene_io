@@ -16,7 +16,7 @@ def load_shot(shot_caches):
     # go through caches and load them
     for cache in shot_caches:
         # log cache import
-        # LOGGER.info(f"Loading {cache}")
+        LOGGER.info(f"Loading {cache}")
         cache_name= split_cache(cache)
         cache_collection = create_collection(cache_name)
         imported_objects =  import_alembic(cache)
@@ -32,7 +32,7 @@ def load_shot(shot_caches):
          # do this for the newly imported objects
         for obj in bpy.context.selected_objects:
             # if the cache is static
-            if cache_name == "stati":
+            if "static" in cache_name:
                 # if it a matte
                 if deselect_matte(obj):
                     obj.name = obj.name.partition("Layout:")[2]
@@ -62,7 +62,6 @@ def create_collection(cache_name):
     bpy.data.collections.new(cache_name)
     bpy.context.scene.collection.children.link(bpy.data.collections[cache_name])
     return bpy.data.collections[cache_name]
-
 
 # get root of imported cache
 def get_root(cache):
@@ -122,7 +121,9 @@ def split_cache(cache):
     :return:
     """
     cache_name = os.path.basename(cache)
-    return cache_name.split("_")[-1].rstrip(".abc")
+    cache_name = cache_name.split("_")
+    cache_name = [cache_name[-2],cache_name[-1]]
+    return  "-".join(cache_name).rstrip(".abc")
 
 def clear_that_beeeeeach():
     """
@@ -174,7 +175,7 @@ def camera_setup():
     # data.shift_x)
     render_cami.data.shift_y = -0.442
     # link camera and locator to cami collection
-    link_to_collection(render_cami, "cami")
+    link_to_collection(render_cami, "render-cami")
 
 def deselect_matte(obj):
     """
@@ -182,6 +183,7 @@ def deselect_matte(obj):
     This function returns True if the input object si in the matte dictionary.
     """
     if obj.name in texture_dictionary.matte_list:
+        LOGGER.info(obj.name)
         return True
 
 def set_render_path(shot_name):
@@ -200,7 +202,7 @@ def set_render_path(shot_name):
     LOGGER.info(os.path.join(base_dir + shot_name + base_out + shot_name))
     # check if curretn version exists and increment before safe if so
     #if os.path.exists(os.path.join(base_dir + shot_name+ "/Scenefiles/out/Render/" + shot_name + ".blend")):
-    # bpy.ops.wm.save_as_mainfile(filepath=os.path.join(base_dir + shot_name+ "/Scenefiles/out/Render/" + shot_name + ".blend"))
+    # bpy.ops.wm.save_as_mainfile(filepath=os.path.join(base_dir + shot_name+ "/Scenefiles/shd/Shading/" + shot_name +  + ".blend"))
     # save as
     # bpy.ops.wm.save_as_mainfile(filepath=filepath)
     # if filename:
