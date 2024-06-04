@@ -5,7 +5,7 @@ import os
 import logging
 
 logging.basicConfig(level=logging.INFO)
-LOGGER = logging.getLogger("blender_scene_io")
+LOGGER = logging.getLogger("material")
 
 def texture_path(collection):
     """This function finds a texture for every object that has one.
@@ -19,9 +19,14 @@ def texture_path(collection):
     for obj in bpy.data.collections[collection.name].objects:
         # if object is a mesh continue
         if obj.type == 'MESH':
+            if obj.name not in texture_dictionary.matte_list:
+                subsurf = obj.modifiers.new(name='Subdivision', type='SUBSURF')
+                subsurf.levels = 0
+                subsurf.render_levels = 2
             if obj.name in texture_dictionary.texture_dict:
                 # check if texture image exists
                 if os.path.exists(texture_dictionary.texture_dict[obj.name]):
+                    LOGGER.info(obj.name)
                     texture_material = obj.name.split(":")[-1]
                     # create new material named after key
                     create_image_texture_material(obj, texture_material, texture_dictionary.texture_dict[obj.name])
@@ -132,26 +137,28 @@ def guilded_grease(collection):
     lineart_mod.thickness = 10
     # subdivide gpencil
     subdiv_mod = gpencil_object.grease_pencil_modifiers.new(name="Subdivision", type="GP_SUBDIV")
-    subdiv_mod.level=5
+    subdiv_mod.level=2
     # Return the created Grease Pencil object
     return gpencil_object
-
 
 def shade_teeth():
     """
     This function shades the teeth
     :return:
     """
-    for obj in bpy.data.collections["chr-frodo-rig"].objects:
-        if (obj.type == "MESH") and ("teeth" in obj.name):
-            cel_shade(obj)
+    for coll in bpy.data.collections:
+        if "frodo" in coll.name:
+            for obj in coll.objects:
+                if (obj.type == "MESH") and ("teeth" in obj.name):
+                    cel_shade(obj)
 
 def slim_shade():
     LOGGER.info("Running Shader Script...")
     shade_teeth()
     for collection in bpy.data.collections:
-        if collection.name == "cami":
+        if "cami" in collection.name:
             continue
         else:
-            guilded_grease(collection)
+            if "mattes" not in collection.name:
+                guilded_grease(collection)
             texture_path(collection)
