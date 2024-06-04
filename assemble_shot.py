@@ -1,6 +1,7 @@
 from blender_scene_io import material_assigner
 from blender_scene_io import texture_dictionary
 
+import json
 import logging
 import bpy
 import os
@@ -9,7 +10,7 @@ from mathutils import Vector
 
 LOGGER = logging.getLogger("Frogging Hell Menu")
 
-def load_shot(shot_caches):
+def load_shot(shot_caches, shot_name):
     # delete default scene
     clear_that_beeeeeach()
     wall_collection = create_collection("mattes")
@@ -17,7 +18,7 @@ def load_shot(shot_caches):
     for cache in shot_caches:
         # log cache import
         LOGGER.info(f"Loading {cache}")
-        cache_name= split_cache(cache)
+        cache_name= split_cache(cache, shot_name)
         cache_collection = create_collection(cache_name)
         imported_objects =  import_alembic(cache)
         root_object = get_imported_root_objects(imported_objects)
@@ -35,21 +36,22 @@ def load_shot(shot_caches):
             if "static" in cache_name:
                 # if it a matte
                 if deselect_matte(obj):
-                    obj.name = obj.name.partition("Layout:")[2]
                     bpy.context.scene.collection.objects.unlink(obj)
                     bpy.data.collections[wall_collection.name].objects.link(obj)
                 # if it is everything else
                 else:
-                    obj.name = obj.name.partition("Layout:")[2]
                     link_to_collection(obj,cache_name)
             else:
-                if "frodo" not in obj.name:
-                    obj.name = obj.name.partition("Layout:")[2]
+                LOGGER.info(obj.name)
                 link_to_collection(obj, cache_name)
         LOGGER.info(f"Loaded and sorted {cache_name} in collection")
         bpy.ops.object.select_all(action='DESELECT')
-    camera_setup()
-    material_assigner.slim_shade()
+    # load json here
+    metadata = dictionary_load(shot_name)
+    # set render cam settings here
+    camera_setup(metadata)
+    # deal with textures here
+    material_assigner.slim_shade(metadata)
 
 # create collection
 def create_collection(cache_name):
@@ -113,7 +115,7 @@ def link_to_collection(root_object, collection):
 
 
 # get cache name from path
-def split_cache(cache):
+def split_cache(cache, shot_name):
     """
     This function takes a cache and splits it name.
     It returns the name of the cache
@@ -121,9 +123,8 @@ def split_cache(cache):
     :return:
     """
     cache_name = os.path.basename(cache)
-    cache_name = cache_name.split("_")
-    cache_name = [cache_name[-2],cache_name[-1]]
-    return  "-".join(cache_name).rstrip(".abc")
+    cache_name = cache_name.split("shot_" + shot_name + "_")
+    return cache_name[-1].rstrip(".abc")
 
 def clear_that_beeeeeach():
     """
@@ -139,23 +140,23 @@ def clear_that_beeeeeach():
         for id_data in bpy_data_iter:
             bpy_data_iter.remove(id_data)
 
-def camera_setup():
+def camera_setup(metadata):
     """
     This function takes care of the camera settings.
     It creates the driver and uses the pan_locator to match the camera move from maya.
     """
     # get pos of main ctrl
-    LOGGER.info(bpy.context.scene.objects["prp_camera_Rigging:cam_main_ctrl"].location)
+    LOGGER.info(bpy.context.scene.objects["set_room_Layout:prp_camera_Rigging:cam_main_ctrl"].location)
     # create cam on main ctrl pos
     mult_vector = Vector([0.01,0.01,0.01])
     bpy.ops.object.camera_add(
-        location=((bpy.context.scene.objects["prp_camera_Rigging:cam_main_ctrl"].location.x*mult_vector.x),
-                  (bpy.context.scene.objects["prp_camera_Rigging:cam_main_ctrl"].location.y*mult_vector.y),
-                  (bpy.context.scene.objects["prp_camera_Rigging:cam_main_ctrl"].location.z*mult_vector.z)),
+        location=((bpy.context.scene.objects["set_room_Layout:prp_camera_Rigging:cam_main_ctrl"].location.x*mult_vector.x),
+                  (bpy.context.scene.objects["set_room_Layout:prp_camera_Rigging:cam_main_ctrl"].location.y*mult_vector.y),
+                  (bpy.context.scene.objects["set_room_Layout:prp_camera_Rigging:cam_main_ctrl"].location.z*mult_vector.z)),
         rotation=[1.5708, 0, 0])
     render_cami = bpy.context.active_object
     render_cami.name = "RENDER_CAMI"
-    render_cami.data.lens = 74
+    render_cami.data.lens = metadata["cami"]["focal_length"]
     render_cami.data.sensor_fit = 'VERTICAL'
     # ------------------------------------------------------ set camera shift
     # add driver*0.1058  to x
@@ -175,7 +176,7 @@ def camera_setup():
     # data.shift_x)
     render_cami.data.shift_y = -0.442
     # link camera and locator to cami collection
-    link_to_collection(render_cami, "render-cami")
+    link_to_collection(render_cami, "render_cami")
 
 def deselect_matte(obj):
     """
@@ -185,3 +186,32 @@ def deselect_matte(obj):
     if obj.name in texture_dictionary.matte_list:
         LOGGER.info(obj.name)
         return True
+
+def get_version(input_path):
+    version_folders = os.listdir(os.path.join(base_dir, input_path))
+    versions = []
+    for version_folder in version_folders:
+        versions.append(int(version_folder.split("_")[0][-3:]))
+
+    max_version = max(versions)
+    max_version_string = f"v{str(max_version).zfill(3)}"
+    max_version_folder = ""
+    for version_folder in version_folders:
+        if version_folder.startswith(max_version_string):
+            max_version_folder = version_folder
+    return os.path.join(input_path, max_version_folder)
+
+def dictionary_load(shot_name):
+    """
+    This function loads the json file and returns the dictionary
+    :param shot_name:
+    :return:
+    """
+    json_path = get_version(
+        "M:/frogging_hell_prism/02_Library/Shots/" + shot_name + "/Export/Animation/"
+    ) + "centimeter/metadata.json"
+
+    with open(json_path, "r") as json_file:
+        metadata_dict = json.load(json_file)
+
+    return metadata_dict
