@@ -185,29 +185,3 @@ def deselect_matte(obj):
     if obj.name in texture_dictionary.matte_list:
         LOGGER.info(obj.name)
         return True
-
-def set_render_path(shot_name):
-    """
-    This function sets the render path for the blend file and for the viewer node.
-    It also creates the /out/Render dir if they do not exist
-    """
-    # directory for all shots
-    base_dir = "M:/frogging_hell_prism/02_Library/Shots/"
-    base_out = "/Rendering/3dRender/"
-    # save file
-    file_path = os.path.join(base_dir + shot_name+ "/Scenefiles/out/Render/")
-    # check if renderpath exists if not create missing files
-    if not os.path.exists(file_path):
-        os.makedirs(os.path.join(base_dir + shot_name+ "/Scenefiles/out/Render/"), exist_ok=True)
-    LOGGER.info(os.path.join(base_dir + shot_name + base_out + shot_name))
-    # check if curretn version exists and increment before safe if so
-    #if os.path.exists(os.path.join(base_dir + shot_name+ "/Scenefiles/out/Render/" + shot_name + ".blend")):
-    # bpy.ops.wm.save_as_mainfile(filepath=os.path.join(base_dir + shot_name+ "/Scenefiles/shd/Shading/" + shot_name +  + ".blend"))
-    # save as
-    # bpy.ops.wm.save_as_mainfile(filepath=filepath)
-    # if filename:
-    bpy.context.scene.render.filepath = os.path.join(base_dir + shot_name + base_out + shot_name + "_")
-    render_path = bpy.context.scene.render.filepath
-    # output node render path as well
-    bpy.context.scene.node_tree.nodes["File Output"].base_path = render_path
-    return render_path
