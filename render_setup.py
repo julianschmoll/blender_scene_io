@@ -22,6 +22,5 @@ def set_render_settings():
     bpy.context.scene.render.image_settings.exr_codec = 'ZIP'
 
     # ------------------------------------------ render layers
-    bpy.context.scene.view_layers["ViewLayer"].use_pass_diffuse_color = True
     bpy.context.scene.view_layers["ViewLayer"].use_pass_cryptomatte_object = True
     bpy.context.scene.view_layers["ViewLayer"].use_pass_cryptomatte_material = True
