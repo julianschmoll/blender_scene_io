@@ -13,7 +13,7 @@ LOGGER = logging.getLogger("Frogging Hell Menu")
 def load_shot(shot_caches, shot_name):
     # delete default scene
     clear_that_beeeeeach()
-    wall_collection = create_collection("mattes")
+    mattes_collection = create_collection("mattes")
     # go through caches and load them
     for cache in shot_caches:
         if "metadata.json" in cache:
@@ -35,11 +35,11 @@ def load_shot(shot_caches, shot_name):
          # do this for the newly imported objects
         for obj in bpy.context.selected_objects:
             # if the cache is static
-            if "static" in cache_name:
+            if "stati" in cache_name:
                 # if it a matte
                 if deselect_matte(obj):
                     bpy.context.scene.collection.objects.unlink(obj)
-                    bpy.data.collections[wall_collection.name].objects.link(obj)
+                    bpy.data.collections[mattes_collection.name].objects.link(obj)
                 # if it is everything else
                 else:
                     link_to_collection(obj,cache_name)
@@ -185,7 +185,7 @@ def deselect_matte(obj):
     This function is used to sort the matte paintings in a collection
     This function returns True if the input object si in the matte dictionary.
     """
-    if obj.name in texture_dictionary.matte_list:
+    if "walls" in obj.name:
         LOGGER.info(obj.name)
         return True
 
@@ -194,9 +194,11 @@ def get_version(input_path):
     versions = []
     for version_folder in version_folders:
         versions.append(int(version_folder.split("_")[0][-3:]))
-
     max_version = max(versions)
-    max_version_string = f"v{str(max_version).zfill(3)}"
+    if max_version < 10:
+        max_version_string = "v000" + str(max_version)
+    else:
+        max_version_string = "v00" + str(max_version)
     max_version_folder = ""
     for version_folder in version_folders:
         if version_folder.startswith(max_version_string):
@@ -209,7 +211,7 @@ def dictionary_load(shot_name):
     :param shot_name:
     :return:
     """
-    json_path = "M:/frogging_hell_prism/02_Library/Shots/" + shot_name + "/Export/Animation/v0028_another-pipelinetest-with-new-metadata_jsc/" + "centimeter/metadata.json"
+    json_path = get_version("M:/frogging_hell_prism/02_Library/Shots/" + shot_name + "/Export/Animation/") + "/centimeter/metadata.json"
 
     with open(json_path, "r") as json_file:
         metadata_dict = json.load(json_file)
