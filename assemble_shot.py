@@ -16,6 +16,8 @@ def load_shot(shot_caches, shot_name):
     wall_collection = create_collection("mattes")
     # go through caches and load them
     for cache in shot_caches:
+        if "metadata.json" in cache:
+            continue
         # log cache import
         LOGGER.info(f"Loading {cache}")
         cache_name= split_cache(cache, shot_name)
@@ -188,7 +190,7 @@ def deselect_matte(obj):
         return True
 
 def get_version(input_path):
-    version_folders = os.listdir(os.path.join(base_dir, input_path))
+    version_folders = os.listdir(os.path.join(input_path))
     versions = []
     for version_folder in version_folders:
         versions.append(int(version_folder.split("_")[0][-3:]))
@@ -207,9 +209,7 @@ def dictionary_load(shot_name):
     :param shot_name:
     :return:
     """
-    json_path = get_version(
-        "M:/frogging_hell_prism/02_Library/Shots/" + shot_name + "/Export/Animation/"
-    ) + "centimeter/metadata.json"
+    json_path = "M:/frogging_hell_prism/02_Library/Shots/" + shot_name + "/Export/Animation/v0028_another-pipelinetest-with-new-metadata_jsc/" + "centimeter/metadata.json"
 
     with open(json_path, "r") as json_file:
         metadata_dict = json.load(json_file)
