@@ -1,5 +1,4 @@
 from blender_scene_io import material_assigner
-from blender_scene_io import texture_dictionary
 
 import json
 import logging
@@ -8,7 +7,7 @@ import os
 from mathutils import Vector
 
 
-LOGGER = logging.getLogger("Frogging Hell Menu")
+LOGGER = logging.getLogger("Shot Assembly")
 
 def load_shot(shot_caches, shot_name):
     # delete default scene
@@ -128,6 +127,7 @@ def split_cache(cache, shot_name):
     cache_name = cache_name.split("shot_" + shot_name + "_")
     return cache_name[-1].rstrip(".abc")
 
+
 def clear_that_beeeeeach():
     """
     This function clears the default scene.
@@ -141,6 +141,7 @@ def clear_that_beeeeeach():
     ):
         for id_data in bpy_data_iter:
             bpy_data_iter.remove(id_data)
+
 
 def camera_setup(metadata):
     """
@@ -180,6 +181,7 @@ def camera_setup(metadata):
     # link camera and locator to cami collection
     link_to_collection(render_cami, "render_cami")
 
+
 def deselect_matte(obj):
     """
     This function is used to sort the matte paintings in a collection
@@ -188,6 +190,7 @@ def deselect_matte(obj):
     if "walls" in obj.name:
         LOGGER.info(obj.name)
         return True
+
 
 def get_version(input_path):
     version_folders = os.listdir(os.path.join(input_path))
@@ -205,13 +208,16 @@ def get_version(input_path):
             max_version_folder = version_folder
     return os.path.join(input_path, max_version_folder)
 
+
 def dictionary_load(shot_name):
     """
     This function loads the json file and returns the dictionary
     :param shot_name:
     :return:
     """
-    json_path = get_version("M:/frogging_hell_prism/02_Library/Shots/" + shot_name + "/Export/Animation/") + "/centimeter/metadata.json"
+    json_path = get_version(
+        "M:/frogging_hell_prism/02_Library/Shots/" + shot_name + "/Export/Animation/"
+    ) + "/centimeter/metadata.json"
 
     with open(json_path, "r") as json_file:
         metadata_dict = json.load(json_file)

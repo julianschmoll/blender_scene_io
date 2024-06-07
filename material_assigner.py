@@ -1,7 +1,4 @@
-from blender_scene_io import texture_dictionary
-
 import bpy
-import os
 import logging
 
 logging.basicConfig(level=logging.INFO)

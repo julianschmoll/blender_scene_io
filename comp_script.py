@@ -1,6 +1,4 @@
 from blender_scene_io import texture_dictionary
-from blender_scene_io import assemble_shot
-
 import bpy
 import logging
 
