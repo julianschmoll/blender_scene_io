@@ -21,6 +21,8 @@ def texture_path(collection,texture_dict):
         if obj.type == 'MESH':
             if obj.name in texture_dict["textures"]:
                 # check if texture image exists
+                if texture_dict["textures"][obj.name] == '':
+                    continue
                 LOGGER.info(obj.name)
                 texture_material = obj.name.split(":")[-1]
                 # create new material named after key
@@ -152,11 +154,12 @@ def slim_shade(texture_dict):
         if "cami" in collection.name:
             continue
         else:
-            shade_teeth()
+            shade_teeth(collection)
             if "mattes" not in collection.name:
                 guilded_grease(collection)
-                for obj in bpy.data.collections[collection.name]:
-                    subsurf = obj.modifiers.new(name='Subdivision', type='SUBSURF')
-                    subsurf.levels = 0
-                    subsurf.render_levels = 2
+                for obj in bpy.data.collections[collection.name].objects:
+                    if obj.type == 'MESH':
+                        subsurf = obj.modifiers.new(name='Subdivision', type='SUBSURF')
+                        subsurf.levels = 0
+                        subsurf.render_levels = 2
             texture_path(collection,texture_dict)
