@@ -87,16 +87,26 @@ def load_shot(shot_caches, shot_name):
     bpy.ops.render.render('INVOKE_DEFAULT', write_still=True)
 
 
-def create_collection(cache_name):
+def create_collection(collection_name):
     """
     This function takes the cache name and creates a collection named after the cache.
     The function returns the created collection
-    :param cache_name:
+    :param collection_name:
     :return:
     """
-    bpy.data.collections.new(cache_name)
-    bpy.context.scene.collection.children.link(bpy.data.collections[cache_name])
-    return bpy.data.collections[cache_name]
+    collection_name = get_unique_collection_name(collection_name)
+    bpy.data.collections.new(collection_name)
+    bpy.context.scene.collection.children.link(bpy.data.collections[collection_name])
+    return bpy.data.collections[collection_name]
+
+
+def get_unique_collection_name(name):
+    counter = 1
+    original_name = name
+    while bpy.data.collections.get(name):
+        name = f"{original_name}_{counter:02d}"
+        counter += 1
+    return name
 
 
 def get_root(cache):
