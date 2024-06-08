@@ -1,4 +1,6 @@
 from blender_scene_io import comp_script
+from blender_scene_io import assemble_shot
+from blender_scene_io import render_submission
 from blender_scene_io import render_setup
 from blender_scene_io import frogging_hell_menu
 
@@ -20,3 +22,10 @@ def run_startup_scripts():
     LOGGER.info("Running Comp Scripts...")
     comp_script.comp_setup()
     LOGGER.info("Happy Blending!")
+
+
+def assemble_and_submit_shot(shot_name):
+    """Assembles shot, saves file and submits it to Renderpal."""
+    shot_caches = frogging_hell_menu.get_shot_caches(shot_name)
+    assemble_shot.load_shot(shot_caches, shot_name)
+    render_submission.submit_render()
