@@ -70,7 +70,11 @@ def apply_texture(node, name, path):
     # connect nodes
     links.new(texture_node.outputs['Color'], output_node.inputs['Surface'])
     # assign loaded image to variable
-    image = bpy.data.images.load(path)
+    try:
+        image = bpy.data.images.load(path)
+    except RuntimeError:
+        LOGGER.error(f"Could not load image which should be located at {path}")
+        return
     # create texture and assign to variable
     texture = bpy.data.textures.new(name="{name}_base_color", type='IMAGE')
     # assign loaded image to image texture
