@@ -43,9 +43,12 @@ def set_render_paths(scene_path=None):
     )
 
 
-def save_scenefile():
+def save_scenefile(filepath=None):
     LOGGER.info("Saving Scenefile")
-    bpy.ops.wm.save_mainfile()
+    if filepath:
+        bpy.ops.wm.save_as_mainfile(filepath=filepath)
+    else:
+        bpy.ops.wm.save_mainfile()
 
 
 def get_scene_file_path():
