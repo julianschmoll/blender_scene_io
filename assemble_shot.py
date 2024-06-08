@@ -83,6 +83,9 @@ def load_shot(shot_caches, shot_name):
     scene_utils.save_scenefile(save_path)
     scene_utils.set_render_paths()
 
+    # we apparently need this to register render callbacks, otherwise batch won't work
+    bpy.ops.render.render('INVOKE_DEFAULT', write_still=True)
+
 
 def create_collection(cache_name):
     """
@@ -160,6 +163,7 @@ def camera_setup(metadata):
     render_cami.name = "RENDER_CAMI"
     render_cami.data.lens = metadata["cami"]["focal_length"]
     render_cami.data.sensor_fit = 'VERTICAL'
+    bpy.context.scene.camera = render_cami
     # ------------------------------------------------------ set camera shift
     # add driver*0.1058  to x
     x_driver = render_cami.data.driver_add('shift_x').driver
