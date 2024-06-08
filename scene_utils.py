@@ -5,6 +5,7 @@ import logging
 
 LOGGER = logging.getLogger("Scene Utils")
 
+
 # Having this here as we don't want to have prism in blender
 USER_ABBR_DICT = {
     "js435": "jsc",
@@ -64,3 +65,19 @@ def get_frame_ramge():
 def get_user_abbr():
     hdm_account = os.getlogin()
     return USER_ABBR_DICT.get(hdm_account) or "usr"
+
+
+def clear_scene():
+    """
+    This function clears the default scene.
+    """
+    for bpy_data_iter in (
+            bpy.data.objects,
+            bpy.data.meshes,
+            bpy.data.lights,
+            bpy.data.cameras,
+            bpy.data.collections
+    ):
+        for node in bpy_data_iter:
+            LOGGER.info(f"Removing {node.name}")
+            bpy_data_iter.remove(node)

@@ -1,19 +1,18 @@
 from blender_scene_io import material_assigner
 from blender_scene_io import scene_utils
+from blender_scene_io.texture_dictionary import dictionary_load
 
-import json
 import logging
 import bpy
 import os
 import pathlib
 from mathutils import Vector
 
-
 LOGGER = logging.getLogger("Shot Assembly")
 
 def load_shot(shot_caches, shot_name):
     # delete default scene
-    clear_that_beeeeeach()
+    scene_utils.clear_scene()
     mattes_collection = create_collection("mattes")
     # go through caches and load them
     for cache in shot_caches:
@@ -85,7 +84,6 @@ def load_shot(shot_caches, shot_name):
     scene_utils.set_render_paths()
 
 
-# create collection
 def create_collection(cache_name):
     """
     This function takes the cache name and creates a collection named after the cache.
@@ -97,7 +95,7 @@ def create_collection(cache_name):
     bpy.context.scene.collection.children.link(bpy.data.collections[cache_name])
     return bpy.data.collections[cache_name]
 
-# get root of imported cache
+
 def get_root(cache):
     """
     This function gets the root of an object hierarchy here
@@ -109,7 +107,6 @@ def get_root(cache):
     return cache
 
 
-# get root of import
 def get_imported_root_objects(imported_objects):
     """
     This function gets the root object of cache by using get_root()
@@ -120,7 +117,6 @@ def get_imported_root_objects(imported_objects):
     return imported_root
 
 
-# import alembic cache
 def import_alembic(cache):
     """
     This function imports the cache.
@@ -144,21 +140,6 @@ def link_to_collection(root_object, collection):
     """
     bpy.context.scene.collection.objects.unlink(root_object)
     bpy.data.collections[collection].objects.link(root_object)
-
-
-def clear_that_beeeeeach():
-    """
-    This function clears the default scene.
-    """
-    for bpy_data_iter in (
-            bpy.data.objects,
-            bpy.data.meshes,
-            bpy.data.lights,
-            bpy.data.cameras,
-            bpy.data.collections
-    ):
-        for id_data in bpy_data_iter:
-            bpy_data_iter.remove(id_data)
 
 
 def camera_setup(metadata):
@@ -203,41 +184,11 @@ def camera_setup(metadata):
 def deselect_matte(obj):
     """
     This function is used to sort the matte paintings in a collection
-    This function returns True if the input object si in the matte dictionary.
+    This function returns True if the input object is in the matte dictionary.
     """
-    if "walls" in obj.name:
+    # added plane here because apparently this is a name we use for mattes
+    # and come on, if we want something to be shaded correctly lets not name it plane
+    if "walls" in obj.name.lower() or "plane" in obj.name.lower():
         LOGGER.info(obj.name)
         return True
-
-
-def get_version(input_path):
-    version_folders = os.listdir(os.path.join(input_path))
-    versions = []
-    for version_folder in version_folders:
-        versions.append(int(version_folder.split("_")[0][-3:]))
-    max_version = max(versions)
-    if max_version < 10:
-        max_version_string = "v000" + str(max_version)
-    else:
-        max_version_string = "v00" + str(max_version)
-    max_version_folder = ""
-    for version_folder in version_folders:
-        if version_folder.startswith(max_version_string):
-            max_version_folder = version_folder
-    return os.path.join(input_path, max_version_folder)
-
-
-def dictionary_load(shot_name):
-    """
-    This function loads the json file and returns the dictionary
-    :param shot_name:
-    :return:
-    """
-    json_path = get_version(
-        "M:/frogging_hell_prism/02_Library/Shots/" + shot_name + "/Export/Animation/"
-    ) + "/centimeter/metadata.json"
-
-    with open(json_path, "r") as json_file:
-        metadata_dict = json.load(json_file)
-
-    return metadata_dict
+    return False
