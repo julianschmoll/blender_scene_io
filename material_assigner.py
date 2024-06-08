@@ -1,10 +1,10 @@
 import bpy
 import logging
 
-logging.basicConfig(level=logging.INFO)
-LOGGER = logging.getLogger("material")
+LOGGER = logging.getLogger("Material Assigner")
 
-def texture_path(collection,texture_dict):
+
+def apply_shader(collection, metadata_dict):
     """This function finds a texture for every object that has one.
         The function iterates through all objects in the input collection.
         If it's a mesh and has a key, this function will use the function create_image_texture_material
@@ -12,22 +12,36 @@ def texture_path(collection,texture_dict):
         input_dictionary is a string that is a key in the big texture_dict.
 
     """
-    # iterate through input collection
-    for obj in bpy.data.collections[collection.name].objects:
-        # if object is a mesh continue
-        if obj.type == 'MESH':
-            if obj.name in texture_dict["textures"]:
-                # check if texture image exists
-                if texture_dict["textures"][obj.name] == '':
-                    continue
-                LOGGER.info(obj.name)
-                texture_material = obj.name.split(":")[-1]
-                # create new material named after key
-                create_image_texture_material(obj, texture_material, texture_dict["textures"][obj.name])
-            else:
-                cel_shade(obj)
+    texture_map =  metadata_dict["textures"]
 
-def create_image_texture_material(obj,texture_material,path):
+    for node in bpy.data.collections[collection.name].objects:
+        name = node.name
+
+        if not node.type == 'MESH':
+            continue
+
+        if not name in texture_map:
+            LOGGER.warning(
+                f"No Texture or base color defined for {name}, applying standard cell shader"
+            )
+            apply_cell_shader(node)
+            continue
+
+        node_data = texture_map[name]
+        texture_filepath = node_data.get("filepath")
+
+        if texture_filepath:
+            LOGGER.info(f"Assigning {texture_filepath} to {name}")
+            material_name = name.split(":")[-1]
+            apply_texture(node, material_name, texture_filepath)
+
+        else:
+            color = node_data.get("based_color")
+            LOGGER.info(f"Shading {node.name} with based color {color}.")
+            apply_cell_shader(node, color=color, name=f"{name}_cel_shader")
+
+
+def apply_texture(node, name, path):
     """
     This function creates a new image texture material node, links it to an output node.
     The new material is named after the key in the dictionary (eg. frog_whole_pants).
@@ -35,19 +49,19 @@ def create_image_texture_material(obj,texture_material,path):
     The key's value is used as the path to load the image.
     """
     # create frodo material
-    bpy.data.materials.new(texture_material)
+    bpy.data.materials.new(f"{name}_material")
     # assign to varibale so we can use it
-    new_material = bpy.data.materials.get(texture_material)
+    material = bpy.data.materials.get(f"{name}_material")
     # add to obj
-    obj.data.materials.append(new_material)
+    node.data.materials.append(material)
     # enable use nodes to make editable
-    new_material.use_nodes = True
+    material.use_nodes = True
     # remove default nodes and their connections
-    new_material.node_tree.links.clear()
-    new_material.node_tree.nodes.clear()
+    material.node_tree.links.clear()
+    material.node_tree.nodes.clear()
     # assign connection and node tree
-    nodes = new_material.node_tree.nodes
-    links = new_material.node_tree.links
+    nodes = material.node_tree.nodes
+    links = material.node_tree.links
     # create nodes
     output_node = nodes.new(type='ShaderNodeOutputMaterial')
     texture_node = nodes.new(type='ShaderNodeTexImage')
@@ -59,7 +73,7 @@ def create_image_texture_material(obj,texture_material,path):
     # assign loaded image to variable
     image = bpy.data.images.load(path)
     # create texture and assign to variable
-    texture = bpy.data.textures.new(name=texture_material, type='IMAGE')
+    texture = bpy.data.textures.new(name="{name}_base_color", type='IMAGE')
     # assign loaded image to image texture
     texture.image = image
     texture_node.image = image
@@ -70,32 +84,46 @@ def create_image_texture_material(obj,texture_material,path):
     texture_node.image.colorspace_settings.name = 'ACES - ACEScg'
     # bpy.data.images["chr-frodo_Modeling_v0051_frodo_skin_BaseColor_ACES - ACEScg.001"].colorspace_settings.name = 'ACES - ACEScg'
 
-def cel_shade(obj):
+
+def apply_cell_shader(node, color=None, name="standard_cel_shader", ramp_range=0.3):
     """
     This function creates a Cel Shader and assigns it to all objects in the stati collection
     """
-    LOGGER.info(obj)
-    # create Cel Shader material
-    bpy.data.materials.new('Cel Shader')
-    # get Cel Shader material
-    cel_shader = bpy.data.materials.get('Cel Shader')
+    bpy.data.materials.new(name)
+    cel_shader = bpy.data.materials.get(name)
     cel_shader.use_nodes=True
-    # remove default nodes and their connections
+
     cel_shader.node_tree.links.clear()
     cel_shader.node_tree.nodes.clear()
-    # assign connection and node tree
+
     nodes = cel_shader.node_tree.nodes
     links = cel_shader.node_tree.links
-    # create nodes
+
     color_ramp_node = nodes.new(type='ShaderNodeValToRGB')
     output_node = nodes.new(type='ShaderNodeOutputMaterial')
-    # place nodes
+
     color_ramp_node.location = (800,200)
     output_node.location = (1200, 200)
-    # connect nodes
-    links.new(color_ramp_node.outputs['Color'],output_node.inputs['Surface'])
-    # loop through all objects in stati and assign the shader
-    obj.data.materials.append(cel_shader)
+
+    if color:
+        red_value, green_value, blue_value = color
+        color_offset = ramp_range/2
+        color_ramp_node.color_ramp.elements[0].color = (
+            red_value - color_offset,
+            green_value - color_offset,
+            blue_value - color_offset,
+            1
+        )
+        color_ramp_node.color_ramp.elements[1].color = (
+            red_value + color_offset,
+            green_value + color_offset,
+            blue_value + color_offset,
+            1
+        )
+
+    links.new(color_ramp_node.outputs['Color'], output_node.inputs['Surface'])
+    node.data.materials.append(cel_shader)
+
 
 def guilded_grease(collection):
     """
@@ -135,28 +163,19 @@ def guilded_grease(collection):
     # Return the created Grease Pencil object
     return gpencil_object
 
-def shade_teeth(collection):
-    """
-    This function shades the teeth
-    :return:
-    """
-    if "frodo" in collection.name:
-        for obj in collection.objects:
-            if (obj.type == "MESH") and ("teeth" in obj.name):
-                cel_shade(obj)
 
 def slim_shade(texture_dict):
-    LOGGER.info("Running Shader Script...")
+    LOGGER.info("Setting up Shaders...")
     for collection in bpy.data.collections:
         if "cami" in collection.name:
             continue
-        else:
-            shade_teeth(collection)
-            if "mattes" not in collection.name:
-                guilded_grease(collection)
-                for obj in bpy.data.collections[collection.name].objects:
-                    if obj.type == 'MESH':
-                        subsurf = obj.modifiers.new(name='Subdivision', type='SUBSURF')
-                        subsurf.levels = 0
-                        subsurf.render_levels = 2
-            texture_path(collection,texture_dict)
+
+        if "mattes" not in collection.name:
+            guilded_grease(collection)
+            for obj in bpy.data.collections[collection.name].objects:
+                if obj.type == 'MESH':
+                    subsurf = obj.modifiers.new(name='Subdivision', type='SUBSURF')
+                    subsurf.levels = 0
+                    subsurf.render_levels = 2
+
+        apply_shader(collection, texture_dict)
