@@ -15,8 +15,6 @@ def submit_render(dry_run=False):
         scene_path
     )
 
-    scene_utils.set_render_paths()
-
     LOGGER.info(f"Submitting to Renderpal with: \n{cmd}")
 
     if dry_run:
