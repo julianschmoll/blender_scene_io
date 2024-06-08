@@ -32,7 +32,7 @@ def load_shot(shot_caches, shot_name):
             cache_name = naming_elements[0]
 
         LOGGER.info(cache_name)
-        create_collection(cache_name)
+        collection = create_collection(cache_name)
         imported_objects =  import_alembic(cache)
         root_object = get_imported_root_objects(imported_objects)
         """ get hierarchy here"""
@@ -52,12 +52,12 @@ def load_shot(shot_caches, shot_name):
                     bpy.data.collections[mattes_collection.name].objects.link(obj)
                 # if it is everything else
                 else:
-                    link_to_collection(obj, cache_name)
+                    link_to_collection(obj, collection)
             else:
                 LOGGER.info(obj.name)
-                link_to_collection(obj, cache_name)
+                link_to_collection(obj, collection)
 
-        LOGGER.info(f"Loaded and sorted {cache_path.stem} in {cache_name}")
+        LOGGER.info(f"Loaded and sorted {cache_path.stem} in {collection}")
         bpy.ops.object.select_all(action='DESELECT')
 
     metadata = dictionary_load(shot_name)
@@ -142,7 +142,7 @@ def link_to_collection(root_object, collection):
     This function unlinks imported root from other collections and links it to the new created collection
     """
     bpy.context.scene.collection.objects.unlink(root_object)
-    bpy.data.collections[collection].objects.link(root_object)
+    collection.objects.link(root_object)
 
 
 def camera_setup(metadata):
@@ -182,7 +182,7 @@ def camera_setup(metadata):
     # data.shift_x)
     render_cami.data.shift_y = -0.442
     # link camera and locator to cami collection
-    link_to_collection(render_cami, "cami")
+    link_to_collection(render_cami, bpy.data.collections["cami"])
 
 
 def deselect_matte(obj):
