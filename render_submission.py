@@ -72,8 +72,12 @@ def create_import_set(scene_path):
 
 def run_wake_up_bats():
     LOGGER.info("Waking up computers :)")
-    subprocess.Popen("K:/wake_042.bat", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-    subprocess.Popen("K:/wake_043.bat", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    subprocess.Popen(
+        "K:/wake_042.bat", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT
+    )
+    subprocess.Popen(
+        "K:/wake_043.bat", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT
+    )
 
 
 def get_renderpal_exe():
