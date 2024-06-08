@@ -63,7 +63,7 @@ def load_shot(shot_caches, shot_name):
     metadata = dictionary_load(shot_name)
     context = metadata.get("context")
 
-    camera_setup(metadata)
+    camera_setup(metadata["cami"])
     material_assigner.slim_shade(metadata)
 
     blend_file_name = "_".join(
@@ -145,25 +145,32 @@ def link_to_collection(root_object, collection):
     collection.objects.link(root_object)
 
 
-def camera_setup(metadata):
+def camera_setup(cam_data):
     """
     This function takes care of the camera settings.
     It creates the driver and uses the pan_locator to match the camera move from maya.
     """
-    # get pos of main ctrl
-    LOGGER.info(bpy.context.scene.objects["set_room_Layout:prp_camera_Rigging:cam_main_ctrl"].location)
+    cam_name = cam_data.get("name")
+    cam_namespace = cam_name.rsplit(":", 1)[0]
+    main_ctl_name = f"{cam_namespace}:cam_main_ctrl"
+    pan_loc_name = f"{cam_namespace}:pan_loc"
+
     # create cam on main ctrl pos
     mult_vector = Vector([0.01,0.01,0.01])
     bpy.ops.object.camera_add(
-        location=((bpy.context.scene.objects["set_room_Layout:prp_camera_Rigging:cam_main_ctrl"].location.x*mult_vector.x),
-                  (bpy.context.scene.objects["set_room_Layout:prp_camera_Rigging:cam_main_ctrl"].location.y*mult_vector.y),
-                  (bpy.context.scene.objects["set_room_Layout:prp_camera_Rigging:cam_main_ctrl"].location.z*mult_vector.z)),
+        location=(
+            (bpy.context.scene.objects[main_ctl_name].location.x*mult_vector.x),
+            (bpy.context.scene.objects[main_ctl_name].location.y*mult_vector.y),
+            (bpy.context.scene.objects[main_ctl_name].location.z*mult_vector.z)
+        ),
         rotation=[1.5708, 0, 0])
+
     render_cami = bpy.context.active_object
     render_cami.name = "RENDER_CAMI"
-    render_cami.data.lens = metadata["cami"]["focal_length"]
+    render_cami.data.lens = cam_data["focal_length"]
     render_cami.data.sensor_fit = 'VERTICAL'
     bpy.context.scene.camera = render_cami
+
     # ------------------------------------------------------ set camera shift
     # add driver*0.1058  to x
     x_driver = render_cami.data.driver_add('shift_x').driver
@@ -174,7 +181,7 @@ def camera_setup(metadata):
     var.type = 'TRANSFORMS'
     # configure the variable to use for the drivers location
     target = var.targets[0]
-    target.id = bpy.context.scene.objects["set_room_Layout:prp_camera_Rigging:pan_loc"]
+    target.id = bpy.context.scene.objects[pan_loc_name]
     target.transform_type = 'LOC_X'
     target.transform_space = 'WORLD_SPACE'
     # set driver expression
