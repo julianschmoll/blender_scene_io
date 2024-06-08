@@ -82,6 +82,7 @@ def load_shot(shot_caches, shot_name):
 
     scene_utils.save_scenefile(save_path)
     scene_utils.set_render_paths()
+    scene_utils.set_time_slider_view()
 
     # we apparently need this to register render callbacks, otherwise batch won't work
     bpy.ops.render.render('INVOKE_DEFAULT', write_still=True)
