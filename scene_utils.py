@@ -1,6 +1,7 @@
 import bpy
 import os
 import logging
+import ctypes
 
 
 LOGGER = logging.getLogger("Scene Utils")
@@ -78,3 +79,17 @@ def clear_scene():
         for node in bpy_data_iter:
             LOGGER.info(f"Removing {node.name}")
             bpy_data_iter.remove(node)
+
+
+def set_time_slider_view():
+    for area in bpy.context.screen.areas:
+        if area.type == 'DOPESHEET_EDITOR':
+            for region in area.regions:
+                if region.type == 'WINDOW':
+                    ctx = bpy.context.copy()
+                    ctx['area'] = area
+                    ctx['region'] = region
+                    with bpy.context.temp_override(**ctx):
+                        bpy.ops.action.view_all()
+                    break
+            break
