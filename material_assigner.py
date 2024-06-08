@@ -32,8 +32,7 @@ def apply_shader(collection, metadata_dict):
 
         if texture_filepath:
             LOGGER.info(f"Assigning {texture_filepath} to {name}")
-            material_name = name.split(":")[-1]
-            apply_texture(node, material_name, texture_filepath)
+            apply_texture(node, f"{name}_material", texture_filepath)
 
         else:
             color = node_data.get("based_color")
