@@ -6,20 +6,6 @@ import logging
 LOGGER = logging.getLogger("Scene Utils")
 
 
-# Having this here as we don't want to have prism in blender
-USER_ABBR_DICT = {
-    "js435": "jsc",
-    "rl049": "rle",
-    "lr059": "lre",
-    "ch171": "cho",
-    "mz095": "mzy",
-    "lk181": "lku",
-    "ab324": "abu",
-    "nw086": "nwi",
-    "ph081": "pho"
-}
-
-
 def set_render_paths(scene_path=None):
     if not scene_path:
         scene_path = get_scene_file_path()
@@ -63,8 +49,19 @@ def get_frame_ramge():
 
 
 def get_user_abbr():
-    hdm_account = os.getlogin()
-    return USER_ABBR_DICT.get(hdm_account) or "usr"
+    get_user_name_ex = ctypes.windll.secur32.GetUserNameExW
+    name_display = 3
+
+    size = ctypes.pointer(ctypes.c_ulong(0))
+    get_user_name_ex(name_display, None, size)
+
+    name_buffer = ctypes.create_unicode_buffer(size.contents.value)
+    get_user_name_ex(name_display, name_buffer, size)
+
+    display_name = name_buffer.value.split()
+
+    # this should be how prism does it
+    return f"{display_name[-1][:1]}{display_name[0][:2]}".lower()
 
 
 def clear_scene():
