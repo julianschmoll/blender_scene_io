@@ -1,9 +1,11 @@
 from blender_scene_io import material_assigner
+from blender_scene_io import scene_utils
 
 import json
 import logging
 import bpy
 import os
+import pathlib
 from mathutils import Vector
 
 
@@ -15,12 +17,23 @@ def load_shot(shot_caches, shot_name):
     mattes_collection = create_collection("mattes")
     # go through caches and load them
     for cache in shot_caches:
-        if "metadata.json" in cache:
+        cache_path = pathlib.Path(cache)
+
+        # this way we don't get any unexpected files
+        if not cache_path.suffix == ".abc":
             continue
-        # log cache import
-        LOGGER.info(f"Loading {cache}")
-        cache_name= split_cache(cache, shot_name)
-        cache_collection = create_collection(cache_name)
+
+        LOGGER.info(f"Loading {cache_path.stem}")
+
+        # this could be written much nicer but i'm tired
+        naming_elements = cache_path.stem.split("_")[-1].split("-")
+        if len(naming_elements) > 1:
+            cache_name = "_".join(naming_elements[0:-1])
+        else:
+            cache_name = naming_elements[0]
+
+        LOGGER.info(cache_name)
+        create_collection(cache_name)
         imported_objects =  import_alembic(cache)
         root_object = get_imported_root_objects(imported_objects)
         """ get hierarchy here"""
@@ -31,28 +44,46 @@ def load_shot(shot_caches, shot_name):
         # get root again
         root_object.select_set(True)
         bpy.context.active_object.scale=(0.01,0.01,0.01)
-         # do this for the newly imported objects
+
         for obj in bpy.context.selected_objects:
-            # if the cache is static
-            if "stati" in cache_name:
-                # if it a matte
+            if cache_name == "static":
                 if deselect_matte(obj):
+                    # matte nodes
                     bpy.context.scene.collection.objects.unlink(obj)
                     bpy.data.collections[mattes_collection.name].objects.link(obj)
                 # if it is everything else
                 else:
-                    link_to_collection(obj,cache_name)
+                    link_to_collection(obj, cache_name)
             else:
                 LOGGER.info(obj.name)
                 link_to_collection(obj, cache_name)
-        LOGGER.info(f"Loaded and sorted {cache_name} in collection")
+
+        LOGGER.info(f"Loaded and sorted {cache_path.stem} in {cache_name}")
         bpy.ops.object.select_all(action='DESELECT')
-    # load json here
+
     metadata = dictionary_load(shot_name)
-    # set render cam settings here
+    context = metadata.get("context")
+
     camera_setup(metadata)
-    # deal with textures here
     material_assigner.slim_shade(metadata)
+
+    blend_file_name = "_".join(
+        [
+            context["asset_name"],
+            context["shot"],
+            "shd_Shading",
+            context["version"],
+            scene_utils.get_user_abbr(),
+        ]
+    )
+    save_path = os.path.join(
+        context["base_path"], "Scenefiles", "shd", "Shading", f"{blend_file_name}_.blend"
+    )
+    LOGGER.info(f"Saving Scenefile to {save_path}")
+
+    scene_utils.save_scenefile(save_path)
+    scene_utils.set_render_paths()
+
 
 # create collection
 def create_collection(cache_name):
@@ -115,19 +146,6 @@ def link_to_collection(root_object, collection):
     bpy.data.collections[collection].objects.link(root_object)
 
 
-# get cache name from path
-def split_cache(cache, shot_name):
-    """
-    This function takes a cache and splits it name.
-    It returns the name of the cache
-    :param cache:
-    :return:
-    """
-    cache_name = os.path.basename(cache)
-    cache_name = cache_name.split("shot_" + shot_name + "_")
-    return cache_name[-1].rstrip(".abc")
-
-
 def clear_that_beeeeeach():
     """
     This function clears the default scene.
@@ -179,7 +197,7 @@ def camera_setup(metadata):
     # data.shift_x)
     render_cami.data.shift_y = -0.442
     # link camera and locator to cami collection
-    link_to_collection(render_cami, "render_cami")
+    link_to_collection(render_cami, "cami")
 
 
 def deselect_matte(obj):
