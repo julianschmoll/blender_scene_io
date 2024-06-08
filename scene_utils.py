@@ -5,6 +5,19 @@ import logging
 
 LOGGER = logging.getLogger("Scene Utils")
 
+# Having this here as we don't want to have prism in blender
+USER_ABBR_DICT = {
+    "js435": "jsc",
+    "rl049": "rle",
+    "lr059": "lre",
+    "ch171": "cho",
+    "mz095": "mzy",
+    "lk181": "lku",
+    "ab324": "abu",
+    "nw086": "nwi",
+    "ph081": "pho"
+}
+
 
 def set_render_paths(scene_path=None):
     if not scene_path:
@@ -42,3 +55,8 @@ def get_scene_file_path():
 def get_frame_ramge():
     scn = bpy.context.scene
     return scn.frame_start, scn.frame_end
+
+
+def get_user_abbr():
+    hdm_account = os.getlogin()
+    return USER_ABBR_DICT.get(hdm_account) or "usr"
