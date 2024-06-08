@@ -35,6 +35,7 @@ def set_render_paths(scene_path=None):
 def save_scenefile(filepath=None):
     LOGGER.info("Saving Scenefile")
     if filepath:
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
         bpy.ops.wm.save_as_mainfile(filepath=filepath, relative_remap = False)
     else:
         bpy.ops.wm.save_mainfile(relative_remap = False)
