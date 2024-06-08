@@ -33,6 +33,7 @@ def set_render_paths(scene_path=None):
         "3dRender",
         naming_elem[4],
     )
+    LOGGER.info(f"Setting render path to {base_render_path}")
     file_name = "shot_{0}_3d_####.exr".format(naming_elem[1])
 
     bpy.context.scene.render.filepath = os.path.join(
