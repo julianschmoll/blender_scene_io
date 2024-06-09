@@ -1,4 +1,3 @@
-from blender_scene_io import comp_script
 from blender_scene_io import assemble_shot
 from blender_scene_io import render_submission
 from blender_scene_io import render_setup
@@ -19,8 +18,6 @@ def run_startup_scripts():
     frogging_hell_menu.register()
     LOGGER.info("Running Render Setup Scripts...")
     render_setup.set_render_settings()
-    LOGGER.info("Running Comp Scripts...")
-    comp_script.comp_setup()
     LOGGER.info("Happy Blending!")
 
 
