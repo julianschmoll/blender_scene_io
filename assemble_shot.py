@@ -1,6 +1,7 @@
 from blender_scene_io import material_assigner
 from blender_scene_io import scene_utils
 from blender_scene_io.texture_dictionary import dictionary_load
+from blender_scene_io import comp_script
 
 import logging
 import bpy
@@ -65,6 +66,9 @@ def load_shot(shot_caches, shot_name):
 
     camera_setup(metadata["cami"])
     material_assigner.slim_shade(metadata)
+
+    # pick cryptos
+    comp_script.comp_setup()
 
     blend_file_name = "_".join(
         [
