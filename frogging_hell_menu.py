@@ -65,8 +65,6 @@ class ImportShot(bpy.types.Operator):
         self.report({"INFO"}, f"Executing Shot Assembly for {self.shot_name}")
         """ASSEMBLE SHOT HERE"""
         assemble_shot.load_shot(shot_caches, self.shot_name)
-        # create cryptos
-        comp_script.comp_setup()
         LOGGER.info("Finished Import")
         return {'FINISHED'}
 
