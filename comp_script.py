@@ -37,24 +37,12 @@ def basic_comp_setup():
     viewer_node = nodetree.nodes.new("CompositorNodeViewer")
     # add slots ro node
     LOGGER.info(output_node.name)
-    output_node.layer_slots.new("Cryptomatte_Frodo")
-    # place nodes in comp space
-    frodo_cryptomatte_node.location = (400,400)
     output_node.location = (1000,100)
     viewer_node.location = (1000, 400)
     render_layer_node.location = (0,200)
     # ---------------------------------------------------------------------------- connecting nodes
     # render layer to output
     nodetree.links.new(render_layer_node.outputs["Image"],output_node.inputs["Image"])
-    # crypto to output
-    nodetree.links.new(frodo_cryptomatte_node.outputs["Image"],output_node.inputs["Cryptomatte_Frodo"])
-    # render layer to cryptomatte
-    nodetree.links.new(render_layer_node.outputs["Image"],frodo_cryptomatte_node.inputs["Image"])
-    # cryptomatte to viewer
-    nodetree.links.new(frodo_cryptomatte_node.outputs["Matte"], viewer_node.inputs["Image"])
-    # nodetree.links.new(render_layer_node.outputs["Image"],bed_cryptomatte_node.inputs[0])
-    frodo_cryptomatte_node.layer_name = 'ViewLayer.CryptoObject'
-    pick_cryptomatte_materials(frodo_cryptomatte_node, "chr_frodo")
     for coll in bpy.data.collections:
         if "bed" in coll.name:
             bed_cryptomatte_node = nodetree.nodes.new("CompositorNodeCryptomatteV2")
@@ -64,3 +52,11 @@ def basic_comp_setup():
             nodetree.links.new(bed_cryptomatte_node.outputs["Image"], output_node.inputs["Cryptomatte_Bed"])
             bed_cryptomatte_node.layer_name = 'ViewLayer.CryptoObject'
             pick_cryptomatte_materials(bed_cryptomatte_node, coll.name)
+        if "chr_frodo" in coll.name:
+            frodo_cryptomatte_node = nodetree.nodes.new("CompositorNodeCryptomatteV2")
+            frodo_cryptomatte_node.location = (400, -200)
+            output_node.layer_slots.new("Cryptomatte_Frodo")
+            nodetree.links.new(render_layer_node.outputs["Image"], frodo_cryptomatte_node.inputs["Image"])
+            nodetree.links.new(frodo_cryptomatte_node.outputs["Image"], output_node.inputs["Cryptomatte_Bed"])
+            frodo_cryptomatte_node.layer_name = 'ViewLayer.CryptoObject'
+            pick_cryptomatte_materials(frodo_cryptomatte_node, coll.name)
