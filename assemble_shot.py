@@ -12,6 +12,8 @@ import math
 LOGGER = logging.getLogger("Shot Assembly")
 
 def load_shot(shot_caches, shot_name):
+    view_layer = bpy.context.view_layer
+    view_layer.name = "MasterLayer"
     # delete default scene
     scene_utils.clear_scene()
     mattes_collection = create_collection("mattes")
@@ -27,16 +29,15 @@ def load_shot(shot_caches, shot_name):
 
         # this could be written much nicer but i'm tired
         naming_elements = cache_path.stem.split("_")[-1].split("-")
+
         if len(naming_elements) > 1:
             cache_name = "_".join(naming_elements[0:-1])
         else:
             cache_name = naming_elements[0]
 
-        LOGGER.info(cache_name)
         collection = create_collection(cache_name)
         imported_objects =  import_alembic(cache)
         root_object = get_imported_root_objects(imported_objects)
-        """ get hierarchy here"""
         # select root
         root_object.select_set(True)
         # get hierarchy except selected
@@ -60,6 +61,15 @@ def load_shot(shot_caches, shot_name):
 
         LOGGER.info(f"Loaded and sorted {cache_path.stem} in {collection}")
         bpy.ops.object.select_all(action='DESELECT')
+
+    for collection in bpy.data.collections:
+        layer_name = collection.name.replace("_", " ").title().replace(" ", "")
+        bpy.ops.scene.view_layer_add(type='EMPTY')
+        view_layer = bpy.context.view_layer
+        view_layer.name = f"{layer_name}Layer"
+        include_collection(view_layer, collection)
+
+    bpy.context.window.view_layer = bpy.context.scene.view_layers['MasterLayer']
 
     metadata = dictionary_load(shot_name)
     cam_bake = dictionary_load(shot_name, json_file_name="camera")
@@ -121,6 +131,14 @@ def get_root(cache):
     if parent:
         return get_root(parent)
     return cache
+
+
+def include_collection(view_layer, collection):
+    for layer_collection in view_layer.layer_collection.children:
+        if layer_collection.collection != collection:
+            layer_collection.exclude = True
+        else:
+            layer_collection.exclude = False
 
 
 def get_imported_root_objects(imported_objects):
