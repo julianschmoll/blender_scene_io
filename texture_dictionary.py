@@ -5,15 +5,19 @@ import json
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger("blender_scene_io")
 
-def dictionary_load(shot_name):
+def dictionary_load(shot_name, json_file_name="metadata"):
     """
     This function loads the json file and returns the dictionary
     :param shot_name:
     :return:
     """
-    json_path = get_version(
-        "M:/frogging_hell_prism/02_Library/Shots/" + shot_name + "/Export/Animation/"
-    ) + "/centimeter/metadata.json"
+    export_path = get_highest_version(
+        os.path.join(
+            "M:/frogging_hell_prism", "02_Library", "Shots", shot_name, "Export", "Animation"
+        )
+    )
+
+    json_path = os.path.join(export_path, "centimeter", f"{json_file_name}.json")
 
     with open(json_path, "r") as json_file:
         metadata_dict = json.load(json_file)
@@ -21,7 +25,7 @@ def dictionary_load(shot_name):
     return metadata_dict
 
 
-def get_version(input_path):
+def get_highest_version(input_path):
     version_folders = os.listdir(os.path.join(input_path))
     versions = []
     for version_folder in version_folders:
