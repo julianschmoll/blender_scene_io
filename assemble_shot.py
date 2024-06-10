@@ -7,7 +7,7 @@ import logging
 import bpy
 import os
 import pathlib
-from mathutils import Vector
+import math
 
 LOGGER = logging.getLogger("Shot Assembly")
 
@@ -62,9 +62,10 @@ def load_shot(shot_caches, shot_name):
         bpy.ops.object.select_all(action='DESELECT')
 
     metadata = dictionary_load(shot_name)
+    cam_bake = dictionary_load(shot_name, json_file_name="camera")
     context = metadata.get("context")
 
-    camera_setup(metadata["cami"])
+    camera_setup(cam_bake)
     material_assigner.slim_shade(metadata)
 
     # pick cryptos
@@ -160,53 +161,33 @@ def link_to_collection(root_object, collection):
     collection.objects.link(root_object)
 
 
-def camera_setup(cam_data):
-    """
-    This function takes care of the camera settings.
-    It creates the driver and uses the pan_locator to match the camera move from maya.
-    """
-    cam_name = cam_data.get("name")
-    cam_namespace = cam_name.rsplit(":", 1)[0]
-    main_ctl_name = f"{cam_namespace}:cam_main_ctrl"
-    pan_loc_name = f"{cam_namespace}:pan_loc"
-
-    # create cam on main ctrl pos
-    mult_vector = Vector([0.01,0.01,0.01])
-    bpy.ops.object.camera_add(
-        location=(
-            (bpy.context.scene.objects[main_ctl_name].location.x*mult_vector.x),
-            (bpy.context.scene.objects[main_ctl_name].location.y*mult_vector.y),
-            (bpy.context.scene.objects[main_ctl_name].location.z*mult_vector.z)
-        ),
-        rotation=[1.5708, 0, 0])
-
+def camera_setup(cam_bake):
+    bpy.ops.object.camera_add()
     render_cami = bpy.context.active_object
-    render_cami.name = "RENDER_CAMI"
-    render_cami.data.lens = cam_data["focal_length"]
+    render_cami.name = "render_cami"
     render_cami.data.sensor_fit = 'VERTICAL'
-    bpy.context.scene.camera = render_cami
 
-    # ------------------------------------------------------ set camera shift
-    # ToDo: Change this pwease
-    # add driver*0.1058  to x
-    x_driver = render_cami.data.driver_add('shift_x').driver
-    x_driver.type = 'SCRIPTED'
-    # create variable for driver
-    var = x_driver.variables.new()
-    var.name = "locator_x"
-    var.type = 'TRANSFORMS'
-    # configure the variable to use for the drivers location
-    target = var.targets[0]
-    target.id = bpy.context.scene.objects[pan_loc_name]
-    target.transform_type = 'LOC_X'
-    target.transform_space = 'WORLD_SPACE'
-    # set driver expression
-    x_driver.expression = f"{var.name} * 0.1058"
-    # data.shift_x)
-    # ToDo: this should not be hardcoded
-    render_cami.data.shift_y = -0.442
-    # link camera and locator to cami collection
-    link_to_collection(render_cami, bpy.data.collections["cami"])
+    for frame, frame_data in cam_bake.items():
+        frame = int(frame)
+
+        tx, ty, tz = frame_data["translation"]
+        rx, ry, rz = frame_data["rotation"]
+
+        render_cami.location = (tx / 100, -tz / 100, ty / 100)
+        render_cami.rotation_euler = (
+            math.radians(rx+90),
+            math.radians(rz),
+            math.radians(ry)
+        )
+        render_cami.data.lens = frame_data["focal_length"]
+        render_cami.data.shift_x = frame_data["horizontal_pan"]
+        render_cami.data.shift_y = frame_data["vertical_pan"]
+
+        render_cami.keyframe_insert("location", frame=frame)
+        render_cami.keyframe_insert("rotation_euler", frame=frame)
+        render_cami.data.keyframe_insert('shift_x', frame=frame)
+        render_cami.data.keyframe_insert('shift_y', frame=frame)
+        render_cami.data.keyframe_insert('lens', frame=frame)
 
 
 def deselect_matte(obj):
