@@ -49,5 +49,5 @@ def basic_comp_setup():
             output_node.layer_slots.new(f"{coll.name}_crypto")
             nodetree.links.new(render_layer_node.outputs["Image"], bed_cryptomatte_node.inputs["Image"])
             nodetree.links.new(bed_cryptomatte_node.outputs["Image"], output_node.inputs[f"{coll.name}_crypto"])
-            bed_cryptomatte_node.layer_name = 'ViewLayer.CryptoObject'
+            bed_cryptomatte_node.layer_name = 'MasterLayer.CryptoObject'
             pick_cryptomatte_materials(bed_cryptomatte_node, coll.name)
