@@ -64,11 +64,18 @@ def apply_texture(node, name, path):
     # create nodes
     output_node = nodes.new(type='ShaderNodeOutputMaterial')
     texture_node = nodes.new(type='ShaderNodeTexImage')
+    transparent_node = nodes.new(type='ShaderNodeBsdfTransparent')
+    mix_shader_node = nodes.new(type='ShaderNodeMixShader')
     # place nodes
     texture_node.location = (0,200)
-    output_node.location = (400,200)
+    transparent_node.location = (450,450)
+    mix_shader_node.location = (700,300)
+    output_node.location = (900,300)
     # connect nodes
-    links.new(texture_node.outputs['Color'], output_node.inputs['Surface'])
+    links.new(texture_node.outputs['Alpha'], mix_shader_node.inputs['Fac'])
+    links.new(transparent_node.outputs['BSDF'], mix_shader_node.inputs[1])
+    links.new(texture_node.outputs['Color'], mix_shader_node.inputs[2])
+    links.new(mix_shader_node.outputs['Shader'], output_node.inputs['Surface'])
     # assign loaded image to variable
     try:
         image = bpy.data.images.load(path)
@@ -85,7 +92,8 @@ def apply_texture(node, name, path):
     texture_node.texture_mapping.scale[1] = 1.0
     # set color space
     texture_node.image.colorspace_settings.name = 'ACES - ACEScg'
-    # bpy.data.images["chr-frodo_Modeling_v0051_frodo_skin_BaseColor_ACES - ACEScg.001"].colorspace_settings.name = 'ACES - ACEScg'
+    # set alpha blend
+    material.blend_method = 'HASHED'
 
 
 def apply_cell_shader(node, color=None, name="standard_cel_shader", ramp_range=0.3):

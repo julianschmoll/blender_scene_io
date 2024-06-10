@@ -187,6 +187,7 @@ def camera_setup(cam_data):
     bpy.context.scene.camera = render_cami
 
     # ------------------------------------------------------ set camera shift
+    # ToDo: Change this pwease
     # add driver*0.1058  to x
     x_driver = render_cami.data.driver_add('shift_x').driver
     x_driver.type = 'SCRIPTED'
@@ -202,19 +203,26 @@ def camera_setup(cam_data):
     # set driver expression
     x_driver.expression = f"{var.name} * 0.1058"
     # data.shift_x)
+    # ToDo: this should not be hardcoded
     render_cami.data.shift_y = -0.442
     # link camera and locator to cami collection
     link_to_collection(render_cami, bpy.data.collections["cami"])
 
 
 def deselect_matte(obj):
-    """
-    This function is used to sort the matte paintings in a collection
-    This function returns True if the input object is in the matte dictionary.
+    """This function does blah.
+
+    Longer description can be written here.
+
+    Args:
+        obj (bpy.something.something): What is this
+
+    Returns:
+
     """
     # added plane here because apparently this is a name we use for mattes
     # and come on, if we want something to be shaded correctly lets not name it plane
-    if "walls" in obj.name.lower() or "plane" in obj.name.lower():
+    if "walls" in obj.name.lower() or "plane" in obj.name.lower() or "tintoy" in obj.name.lower() or "gertie" in obj.name.lower():
         LOGGER.info(obj.name)
         return True
     return False
