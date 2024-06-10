@@ -141,46 +141,45 @@ def guilded_grease(collection):
     :param collection: Collection to apply the grease pencil line art object on
     :return: the newly created line art object
     """
-    # create gpencil and name it
     gpencil_data = bpy.data.grease_pencils.new(name=collection.name)
-    gpencil_object = bpy.data.objects.new(name=collection.name + "_GP", object_data=gpencil_data)
-    # add it to the collection
-    bpy.data.collections[collection.name].objects.link(gpencil_object)
-    # create a new gpencil layer
-    gp_layer = gpencil_data.layers.new(name=collection.name+"_layer", set_active=True)
-    # create a gpencil frame
-    gp_frame = gp_layer.frames.new(0)
-    # create a Line Art modifier for the gpencil object
-    lineart_mod = gpencil_object.grease_pencil_modifiers.new(name="LineArt", type='GP_LINEART')
-    # create modifier layer
-    lineart_mod.target_layer = collection.name+"_layer"
-    # create material for lines
-    gp_mat = bpy.data.materials.new(name=collection.name + "_Black")
+    gpencil_object = bpy.data.objects.new(
+        name=f"{collection.name}_gp", object_data=gpencil_data
+    )
+    gp_layer = gpencil_data.layers.new(
+        name=f"{collection.name}_gp_layer", set_active=True
+    )
+    gp_layer.frames.new(0)
+    gp_mat = bpy.data.materials.new(name=f"{collection.name}_gp_material")
+
+    lineart_mod = gpencil_object.grease_pencil_modifiers.new(
+        name=f"{collection.name}_gp_lineart", type='GP_LINEART'
+    )
+    lineart_mod.target_layer = f"{collection.name}_gp_layer"
+
     gpencil_data.materials.append(gp_mat)
-    # select gp material
+
     lineart_mod.target_material = gp_mat
-    # don't use crease pls man
     lineart_mod.use_crease = False
-    # Set the target collection for the Line Art modifier
     lineart_mod.source_collection = collection
-    # show in viewport
     lineart_mod.show_render=True
     lineart_mod.show_viewport=True
-    # make thinner
+    lineart_mod.use_intersection_mask[0] = True
     lineart_mod.thickness = 10
-    # subdivide gpencil
-    subdiv_mod = gpencil_object.grease_pencil_modifiers.new(name="Subdivision", type="GP_SUBDIV")
+    lineart_mod.use_fuzzy_intersections = True
+
+    subdiv_mod = gpencil_object.grease_pencil_modifiers.new(
+        name=f"{collection.name}_gp_subdiv", type="GP_SUBDIV"
+    )
     subdiv_mod.level=2
-    # Return the created Grease Pencil object
+
+    bpy.data.collections[collection.name].objects.link(gpencil_object)
+
     return gpencil_object
 
 
 def slim_shade(texture_dict):
     LOGGER.info("Setting up Shaders...")
     for collection in bpy.data.collections:
-        if "cami" in collection.name:
-            continue
-
         if "mattes" not in collection.name:
             guilded_grease(collection)
             for obj in bpy.data.collections[collection.name].objects:
