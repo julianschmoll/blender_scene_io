@@ -15,6 +15,11 @@ scene = bpy.context.scene
 def load_shot(shot_caches, shot_name):
     view_layer = bpy.context.view_layer
     view_layer.name = "MasterLayer"
+    view_layer.use_pass_combined = True
+    view_layer.use_pass_z = True
+    view_layer.use_pass_normal = True
+    view_layer.eevee.use_pass_transparent = True
+
     # delete default scene
     scene_utils.clear_scene()
     mattes_collection = create_collection("mattes")
@@ -61,7 +66,12 @@ def create_renderlayer_from_collection(collection):
     bpy.ops.scene.view_layer_add(type='EMPTY')
     view_layer = bpy.context.view_layer
     view_layer.name = f"{layer_name}Layer"
+    view_layer.use_pass_combined = True
+    view_layer.use_pass_z = True
+    view_layer.use_pass_normal = True
+    view_layer.eevee.use_pass_transparent = True
     include_collection(view_layer, collection)
+    bpy.context.scene.render.film_transparent = True
 
 
 def load_cache_in_collection(cache, mattes_collection):
