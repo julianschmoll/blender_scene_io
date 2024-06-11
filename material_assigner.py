@@ -1,6 +1,8 @@
 import bpy
 import logging
 
+from blender_scene_io.grease import apply_grease_pencil
+
 LOGGER = logging.getLogger("Material Assigner")
 
 
@@ -47,52 +49,46 @@ def apply_texture(node, name, path):
     It is then assigned to the obj which matches the keys name.
     The key's value is used as the path to load the image.
     """
-    # create frodo material
     bpy.data.materials.new(f"{name}_material")
-    # assign to varibale so we can use it
     material = bpy.data.materials.get(f"{name}_material")
-    # add to obj
     node.data.materials.append(material)
-    # enable use nodes to make editable
     material.use_nodes = True
-    # remove default nodes and their connections
     material.node_tree.links.clear()
     material.node_tree.nodes.clear()
-    # assign connection and node tree
     nodes = material.node_tree.nodes
     links = material.node_tree.links
-    # create nodes
+
     output_node = nodes.new(type='ShaderNodeOutputMaterial')
     texture_node = nodes.new(type='ShaderNodeTexImage')
     transparent_node = nodes.new(type='ShaderNodeBsdfTransparent')
     mix_shader_node = nodes.new(type='ShaderNodeMixShader')
-    # place nodes
+
     texture_node.location = (0,200)
     transparent_node.location = (450,450)
     mix_shader_node.location = (700,300)
     output_node.location = (900,300)
-    # connect nodes
+
     links.new(texture_node.outputs['Alpha'], mix_shader_node.inputs['Fac'])
     links.new(transparent_node.outputs['BSDF'], mix_shader_node.inputs[1])
     links.new(texture_node.outputs['Color'], mix_shader_node.inputs[2])
     links.new(mix_shader_node.outputs['Shader'], output_node.inputs['Surface'])
-    # assign loaded image to variable
+
     try:
         image = bpy.data.images.load(path)
     except RuntimeError:
         LOGGER.error(f"Could not load image which should be located at {path}")
         return
-    # create texture and assign to variable
+
     texture = bpy.data.textures.new(name="{name}_base_color", type='IMAGE')
-    # assign loaded image to image texture
+
     texture.image = image
     texture_node.image = image
-    # set texture mapping scale
+
     texture_node.texture_mapping.scale[0] = 1.0
     texture_node.texture_mapping.scale[1] = 1.0
-    # set color space
+
     texture_node.image.colorspace_settings.name = 'ACES - ACEScg'
-    # set alpha blend
+
     material.blend_method = 'HASHED'
 
 
@@ -136,52 +132,11 @@ def apply_cell_shader(node, color=None, name="standard_cel_shader", ramp_range=0
     node.data.materials.append(cel_shader)
 
 
-def guilded_grease(collection):
-    """
-    :param collection: Collection to apply the grease pencil line art object on
-    :return: the newly created line art object
-    """
-    gpencil_data = bpy.data.grease_pencils.new(name=collection.name)
-    gpencil_object = bpy.data.objects.new(
-        name=f"{collection.name}_gp", object_data=gpencil_data
-    )
-    gp_layer = gpencil_data.layers.new(
-        name=f"{collection.name}_gp_layer", set_active=True
-    )
-    gp_layer.frames.new(0)
-    gp_mat = bpy.data.materials.new(name=f"{collection.name}_gp_material")
-
-    lineart_mod = gpencil_object.grease_pencil_modifiers.new(
-        name=f"{collection.name}_gp_lineart", type='GP_LINEART'
-    )
-    lineart_mod.target_layer = f"{collection.name}_gp_layer"
-
-    gpencil_data.materials.append(gp_mat)
-
-    lineart_mod.target_material = gp_mat
-    lineart_mod.use_crease = False
-    lineart_mod.source_collection = collection
-    lineart_mod.show_render=True
-    lineart_mod.show_viewport=True
-    lineart_mod.use_intersection_mask[0] = True
-    lineart_mod.thickness = 10
-    lineart_mod.use_fuzzy_intersections = True
-
-    subdiv_mod = gpencil_object.grease_pencil_modifiers.new(
-        name=f"{collection.name}_gp_subdiv", type="GP_SUBDIV"
-    )
-    subdiv_mod.level=2
-
-    bpy.data.collections[collection.name].objects.link(gpencil_object)
-
-    return gpencil_object
-
-
 def slim_shade(texture_dict):
     LOGGER.info("Setting up Shaders...")
     for collection in bpy.data.collections:
         if "mattes" not in collection.name:
-            guilded_grease(collection)
+            apply_grease_pencil(collection)
             for obj in bpy.data.collections[collection.name].objects:
                 if obj.type == 'MESH':
                     subsurf = obj.modifiers.new(name='Subdivision', type='SUBSURF')
