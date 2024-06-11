@@ -7,7 +7,7 @@ import bpy
 import logging
 
 logging.basicConfig(level=logging.INFO)
-LOGGER = logging.getLogger("blender_scene_io")
+LOGGER = logging.getLogger("Blender Startup")
 
 def run_startup_scripts():
     """This method is always run when launching blender."""
