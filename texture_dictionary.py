@@ -2,8 +2,9 @@ import os
 import logging
 import json
 
-logging.basicConfig(level=logging.INFO)
+
 LOGGER = logging.getLogger("blender_scene_io")
+
 
 def dictionary_load(shot_name, json_file_name="metadata"):
     """
