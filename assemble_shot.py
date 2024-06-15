@@ -27,9 +27,6 @@ def load_shot(shot_caches, shot_name):
     for cache in shot_caches:
         load_cache_in_collection(cache, mattes_collection)
 
-    for collection in bpy.data.collections:
-        create_renderlayer_from_collection(collection)
-
     bpy.context.window.view_layer = bpy.context.scene.view_layers['MasterLayer']
 
     metadata = dictionary_load(shot_name)
@@ -37,6 +34,9 @@ def load_shot(shot_caches, shot_name):
 
     camera_setup(cam_bake, overscan=15)
     material_assigner.slim_shade(metadata)
+
+    for collection in bpy.data.collections:
+        create_renderlayer_from_collection(collection)
 
     comp_script.comp_setup()
 
