@@ -22,10 +22,9 @@ def load_shot(shot_caches, shot_name):
 
     # delete default scene
     scene_utils.clear_scene()
-    mattes_collection = create_collection("mattes")
 
     for cache in shot_caches:
-        load_cache_in_collection(cache, mattes_collection)
+        load_cache_in_collection(cache)
 
     bpy.context.window.view_layer = bpy.context.scene.view_layers['MasterLayer']
 
@@ -38,11 +37,55 @@ def load_shot(shot_caches, shot_name):
     for collection in bpy.data.collections:
         create_renderlayer_from_collection(collection)
 
+    create_grease_layer()
+    create_clean_layer()
+
     comp_script.comp_setup()
 
     scene_utils.save_scenefile(assemble_save_path(metadata.get("context")))
     scene_utils.set_render_paths()
     scene_utils.set_time_slider_view()
+
+
+def create_clean_layer():
+    bpy.ops.scene.view_layer_add(type='EMPTY')
+
+    view_layer = bpy.context.view_layer
+    view_layer.name = "NoGreaseLayer"
+    view_layer.use_pass_combined = True
+    view_layer.use_pass_z = True
+    view_layer.use_pass_normal = True
+    view_layer.eevee.use_pass_transparent = True
+
+    wanted_collections = []
+
+    for collection in bpy.data.collections:
+        if "_grease" not in collection.name:
+            wanted_collections.append(collection)
+
+    include_collections(view_layer, wanted_collections)
+
+
+def create_grease_layer():
+    bpy.ops.scene.view_layer_add(type='EMPTY')
+
+    view_layer = bpy.context.view_layer
+    view_layer.name = "GreaseLayer"
+    view_layer.use_pass_combined = True
+    view_layer.use_pass_z = True
+    view_layer.use_pass_normal = True
+    view_layer.eevee.use_pass_transparent = True
+
+    holdout_collections = []
+
+    for collection in bpy.data.collections:
+        if "_grease" not in collection.name:
+            holdout_collections.append(collection)
+
+    collections = [collection for collection in bpy.data.collections]
+    include_collections(view_layer, collections)
+    for collection in holdout_collections:
+        holdout_collection(view_layer, collection)
 
 
 def assemble_save_path(context):
@@ -70,11 +113,27 @@ def create_renderlayer_from_collection(collection):
     view_layer.use_pass_z = True
     view_layer.use_pass_normal = True
     view_layer.eevee.use_pass_transparent = True
-    include_collection(view_layer, collection)
+    include_collections(view_layer, [collection])
     bpy.context.scene.render.film_transparent = True
 
+    if not collection.name.endswith("_grease"):
+        return
 
-def load_cache_in_collection(cache, mattes_collection):
+    corresponding_collection = bpy.data.collections.get(collection.name.removesuffix("_grease"))
+    if not corresponding_collection:
+        return
+
+    include_collections(view_layer, [collection, corresponding_collection])
+    holdout_collection(view_layer, corresponding_collection)
+
+
+def holdout_collection(view_layer, collection):
+    for layer_collection in view_layer.layer_collection.children:
+        if layer_collection.collection == collection:
+            layer_collection.holdout = True
+
+
+def load_cache_in_collection(cache):
     cache_path = pathlib.Path(cache)
 
     if not cache_path.suffix == ".abc":
@@ -88,7 +147,7 @@ def load_cache_in_collection(cache, mattes_collection):
     else:
         cache_name = naming_elements[0]
 
-    collection = create_collection(cache_name)
+    collection = create_collection(cache_name, unique=False)
     imported_objects = import_alembic(cache)
     root_object = get_imported_root_objects(imported_objects)
     root_object.select_set(True)
@@ -103,7 +162,8 @@ def load_cache_in_collection(cache, mattes_collection):
             if deselect_matte(obj):
                 # matte nodes
                 bpy.context.scene.collection.objects.unlink(obj)
-                bpy.data.collections[mattes_collection.name].objects.link(obj)
+                mattes_collection = create_collection("mattes", unique=False)
+                mattes_collection.objects.link(obj)
             # if it is everything else
             else:
                 link_to_collection(obj, collection)
@@ -115,14 +175,11 @@ def load_cache_in_collection(cache, mattes_collection):
     bpy.ops.object.select_all(action='DESELECT')
 
 
-def create_collection(collection_name):
-    """
-    This function takes the cache name and creates a collection named after the cache.
-    The function returns the created collection
-    :param collection_name:
-    :return:
-    """
-    collection_name = get_unique_collection_name(collection_name)
+def create_collection(collection_name, unique=True):
+    if unique:
+        collection_name = get_unique_collection_name(collection_name)
+    elif bpy.data.collections.get(collection_name):
+        return bpy.data.collections.get(collection_name)
     bpy.data.collections.new(collection_name)
     bpy.context.scene.collection.children.link(bpy.data.collections[collection_name])
     return bpy.data.collections[collection_name]
@@ -148,9 +205,9 @@ def get_root(cache):
     return cache
 
 
-def include_collection(view_layer, collection):
+def include_collections(view_layer, collections):
     for layer_collection in view_layer.layer_collection.children:
-        if layer_collection.collection != collection:
+        if layer_collection.collection not in collections:
             layer_collection.exclude = True
         else:
             layer_collection.exclude = False
