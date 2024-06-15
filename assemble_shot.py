@@ -208,6 +208,8 @@ def camera_setup(cam_bake, overscan=0):
     render_cami.data.sensor_fit = 'VERTICAL'
 
     for frame, frame_data in cam_bake.items():
+        vertical_film_aperture = frame_data.get("vertical_film_aperture") or 1
+        filmback_factor = 1 / vertical_film_aperture
         frame = int(frame)
 
         tx, ty, tz = frame_data["translation"]
@@ -221,8 +223,8 @@ def camera_setup(cam_bake, overscan=0):
         )
 
         render_cami.data.lens = frame_data["focal_length"] * scale_fac
-        render_cami.data.shift_x = frame_data["horizontal_pan"] * scale_fac
-        render_cami.data.shift_y = frame_data["vertical_pan"] * scale_fac
+        render_cami.data.shift_x = frame_data["horizontal_pan"] * scale_fac * filmback_factor
+        render_cami.data.shift_y = frame_data["vertical_pan"] * scale_fac * filmback_factor
 
         render_cami.keyframe_insert("location", frame=frame)
         render_cami.keyframe_insert("rotation_euler", frame=frame)
