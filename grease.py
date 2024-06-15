@@ -30,7 +30,9 @@ def apply_grease_pencil(collection):
     if "frodo" not in collection.name:
         add_noise_modifier(f"{collection.name}_gp_noise", gpencil_object)
 
-    bpy.data.collections[collection.name].objects.link(gpencil_object)
+    bpy.data.collections.new(f"{collection.name}_grease")
+    bpy.context.scene.collection.children.link(bpy.data.collections[f"{collection.name}_grease"])
+    bpy.data.collections[f"{collection.name}_grease"].objects.link(gpencil_object)
 
     return gpencil_object
 
@@ -59,7 +61,7 @@ def add_lineart_modifier(collection, gp_mat, gpencil_object):
     lineart_mod.show_render = True
     lineart_mod.show_viewport = True
     lineart_mod.use_intersection_mask[0] = True
-    lineart_mod.thickness = 10
+    lineart_mod.thickness = 12
     lineart_mod.use_fuzzy_intersections = True
 
     return lineart_mod
@@ -84,7 +86,7 @@ def add_multiple_strokes_modifier(name, gpencil_object):
         name=name, type="GP_MULTIPLY"
     )
     multi_stroke_mod.duplicates = 2
-    multi_stroke_mod.distance = 0.002
+    multi_stroke_mod.distance = 0.0005
     multi_stroke_mod.offset = 0
 
     return
