@@ -10,6 +10,7 @@ def apply_grease_pencil(collection):
     :param collection: Collection to apply the grease pencil line art object on
     :return: the newly created line art object
     """
+    gp_mat = add_material(collection)
     gpencil_data = bpy.data.grease_pencils.new(name=collection.name)
     gpencil_object = bpy.data.objects.new(
         name=f"{collection.name}_gp", object_data=gpencil_data
@@ -18,8 +19,8 @@ def apply_grease_pencil(collection):
         name=f"{collection.name}_gp_layer", set_active=True
     )
     gp_layer.frames.new(0)
+    gpencil_data.materials.append(gp_mat)
 
-    gp_mat = add_material(collection, gpencil_data)
     add_lineart_modifier(collection, gp_mat, gpencil_object)
 
     add_subdiv_modifier(f"{collection.name}_gp_subdiv", gpencil_object)
@@ -37,9 +38,24 @@ def apply_grease_pencil(collection):
     return gpencil_object
 
 
-def add_material(collection, gpencil_data):
-    gp_mat = bpy.data.materials.new(name=f"{collection.name}_gp_material")
-    gpencil_data.materials.append(gp_mat)
+def add_material(collection):
+    mat_name =f"{collection.name}_gp_material"
+    if mat_name in bpy.data.materials.keys():
+        gp_mat = bpy.data.materials[mat_name]
+    else:
+        gp_mat = bpy.data.materials.new(mat_name)
+
+    if not gp_mat.is_grease_pencil:
+        bpy.data.materials.create_gpencil_data(gp_mat)
+
+    material = gp_mat.grease_pencil
+    material.color = (0.0240566, 0.0240566, 0.0240566, 1)
+    material.stroke_style = "TEXTURE"
+    material.pixel_size = 2000
+    material.use_overlap_strokes = True
+    image = bpy.data.images.load("C:\\Users\\js435\\Desktop\\brush test.png")
+    material.stroke_image = image
+
     return gp_mat
 
 
