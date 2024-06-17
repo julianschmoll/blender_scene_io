@@ -2,6 +2,7 @@ import os
 import logging
 import subprocess
 from blender_scene_io import scene_utils
+from blender_scene_io import ui
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger("Render Submission")
@@ -9,8 +10,9 @@ LOGGER = logging.getLogger("Render Submission")
 
 def submit_render(dry_run=False):
     scene_path = scene_utils.get_scene_file_path()
+    nice_name = assemble_render_set_name(scene_path)
     cmd = assemble_cmd(
-        assemble_render_set_name(scene_path),
+        nice_name,
         create_import_set(scene_path),
         scene_path
     )
@@ -24,6 +26,10 @@ def submit_render(dry_run=False):
     run_wake_up_bats()
     subprocess.Popen(cmd)
 
+    ui.ShowMessageBox(
+        message=f"Succesfully submitted {nice_name} to Renderpal.",
+        title="Renderpal Submission"
+    )
 
 def assemble_render_set_name(scene_path):
     path_elem = scene_path.split(os.sep)
