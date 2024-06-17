@@ -63,9 +63,7 @@ class ImportShot(bpy.types.Operator):
             return {'CANCELLED'}
         LOGGER.info(f"Executing Shot Assembly for {self.shot_name}")
         self.report({"INFO"}, f"Executing Shot Assembly for {self.shot_name}")
-        """ASSEMBLE SHOT HERE"""
         assemble_shot.load_shot(shot_caches, self.shot_name)
-        LOGGER.info("Finished Import")
         return {'FINISHED'}
 
 class RenderShot(bpy.types.Operator):
