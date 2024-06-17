@@ -26,8 +26,6 @@ def load_shot(shot_caches, shot_name):
     for cache in shot_caches:
         load_cache_in_collection(cache)
 
-    bpy.context.window.view_layer = bpy.context.scene.view_layers['MasterLayer']
-
     metadata = dictionary_load(shot_name)
     cam_bake = dictionary_load(shot_name, json_file_name="camera")
 
@@ -39,6 +37,8 @@ def load_shot(shot_caches, shot_name):
 
     create_grease_layer()
     create_clean_layer()
+
+    bpy.context.window.view_layer = bpy.context.scene.view_layers['MasterLayer']
 
     comp_script.comp_setup()
 
