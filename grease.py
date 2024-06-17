@@ -7,13 +7,29 @@ LOGGER = logging.getLogger("Grease Utils")
 
 
 def apply_grease_pencil(collection):
-    pixel_size = 300.0
+    color = (0.0240566, 0.0240566, 0.0240566, 1)
     if "bed" in collection.name:
         pixel_size=1000
+        image = load_image(r"M:\frogging_hell_prism\06_Artist\juschli\brushes\frodo_outline_v7.png")
+        thickness = 10
+    elif "frodo" in collection.name:
+        pixel_size = 300.0
+        image = load_image(r"M:\frogging_hell_prism\06_Artist\juschli\brushes\frodo_outline_v7.png")
+        thickness = 16
+    elif "static" in collection.name:
+        pixel_size = 300.0
+        color = (0.141263, 0.141263, 0.141263, 1)
+        image = load_image(r"M:\frogging_hell_prism\06_Artist\juschli\brushes\background_element_outline_grey_v2.png")
+        thickness = 8
+    else:
+        pixel_size = 300.0
+        image = load_image(r"M:\frogging_hell_prism\06_Artist\juschli\brushes\background_element_outline.png")
+        thickness = 8
     gp_mat = add_material(
         collection,
-        load_image(r"M:\frogging_hell_prism\06_Artist\juschli\brushes\frodo_outline_v7.png"),
-        pixel_size=pixel_size
+        image,
+        pixel_size=pixel_size,
+        color=color
     )
     gpencil_data = bpy.data.grease_pencils.new(name=collection.name)
     gpencil_object = bpy.data.objects.new(
@@ -22,13 +38,9 @@ def apply_grease_pencil(collection):
     gp_layer = gpencil_data.layers.new(
         name=f"{collection.name}_gp_layer", set_active=True
     )
+    gp_layer.use_lights = False
     gp_layer.frames.new(0)
     gpencil_data.materials.append(gp_mat)
-
-    thickness=10
-
-    if "frodo" in collection.name:
-        thickness = 16
 
     add_gp_modifier(
         gpencil_object,
@@ -131,7 +143,7 @@ def load_image(path):
     return bpy.data.images.load(path)
 
 
-def add_material(collection, image=None, pixel_size=300.0):
+def add_material(collection, image=None, pixel_size=300.0, color=(0.0240566, 0.0240566, 0.0240566, 1)):
     mat_name =f"{collection.name}_gp_material"
     if mat_name in bpy.data.materials.keys():
         gp_mat = bpy.data.materials[mat_name]
@@ -142,7 +154,7 @@ def add_material(collection, image=None, pixel_size=300.0):
         bpy.data.materials.create_gpencil_data(gp_mat)
 
     material = gp_mat.grease_pencil
-    material.color = (0.0240566, 0.0240566, 0.0240566, 1)
+    material.color = color
 
     if image:
         material.stroke_style = "TEXTURE"
