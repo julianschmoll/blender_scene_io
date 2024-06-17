@@ -1,17 +1,15 @@
 import bpy
 import logging
+import os
 
 
 LOGGER = logging.getLogger("Grease Utils")
 
 
 def apply_grease_pencil(collection):
-    """
-    :param collection: Collection to apply the grease pencil line art object on
-    :return: the newly created line art object
-    """
-    image = bpy.data.images.load(r"M:\frogging_hell_prism\06_Artist\juschli\brushes\brush_test.png")
-    gp_mat = add_material(collection, image)
+    gp_mat = add_material(
+        collection, load_image(r"M:\frogging_hell_prism\06_Artist\juschli\brushes\frodo_outline_v3.png")
+    )
     gpencil_data = bpy.data.grease_pencils.new(name=collection.name)
     gpencil_object = bpy.data.objects.new(
         name=f"{collection.name}_gp", object_data=gpencil_data
@@ -25,7 +23,7 @@ def apply_grease_pencil(collection):
     thickness=10
 
     if "frodo" in collection.name:
-        thickness = 22
+        thickness = 16
 
     add_gp_modifier(
         gpencil_object,
@@ -39,14 +37,10 @@ def apply_grease_pencil(collection):
         show_viewport=True,
         use_intersection_mask=[True, False, False, False, False, False, False, False],
         thickness=thickness,
-        use_fuzzy_intersections=True
-    )
-
-    add_gp_modifier(
-        gpencil_object,
-        f"{collection.name}_gp_subdiv",
-        "GP_SUBDIV",
-        level=2
+        use_fuzzy_intersections=True,
+        use_geometry_space_chain = True,
+        chaining_image_threshold = 0.2,
+        smooth_tolerance = 0.1,
     )
 
     add_gp_modifier(
@@ -54,7 +48,7 @@ def apply_grease_pencil(collection):
         f"{collection.name}_gp_mult",
         "GP_MULTIPLY",
         duplicates = 2,
-        distance = 0.0005,
+        distance = 0.00025,
         offset = 0
     )
 
@@ -63,7 +57,7 @@ def apply_grease_pencil(collection):
         f"{collection.name}_gp_simpl",
         "GP_SIMPLIFY",
         mode = "ADAPTIVE",
-        factor = 0.02,
+        factor = 0.01,
     )
 
     add_gp_modifier(
@@ -98,11 +92,25 @@ def apply_grease_pencil(collection):
             step = 74,
         )
 
+    add_gp_modifier(
+        gpencil_object,
+        f"{collection.name}_gp_subdiv",
+        "GP_SUBDIV",
+        level=2
+    )
+
     bpy.data.collections.new(f"{collection.name}_grease")
     bpy.context.scene.collection.children.link(bpy.data.collections[f"{collection.name}_grease"])
     bpy.data.collections[f"{collection.name}_grease"].objects.link(gpencil_object)
 
     return gpencil_object
+
+
+def load_image(path):
+    img_name = os.path.basename(path)
+    if bpy.data.images.get(img_name):
+        return bpy.data.images.get(img_name)
+    return bpy.data.images.load(path)
 
 
 def add_material(collection, image=None):
