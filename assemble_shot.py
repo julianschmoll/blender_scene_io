@@ -44,6 +44,8 @@ def load_shot(shot_caches, shot_name):
 
     scene_utils.save_scenefile(assemble_save_path(metadata.get("context")))
     scene_utils.set_render_paths()
+    bpy.context.scene.eevee.taa_render_samples = 1
+    bpy.context.scene.eevee.taa_samples = 1
     scene_utils.set_time_slider_view()
 
 
