@@ -70,6 +70,9 @@ def clear_scene():
     """
     This function clears the default scene.
     """
+    for vl in bpy.context.scene.view_layers:
+        if vl.name not in ["View Layer", "ViewLayer", "MasterLayer"]:
+            bpy.context.scene.view_layers.remove(vl)
     for bpy_data_iter in (
             bpy.data.objects,
             bpy.data.meshes,
