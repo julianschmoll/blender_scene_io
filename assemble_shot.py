@@ -12,6 +12,13 @@ import math
 LOGGER = logging.getLogger("Shot Assembly")
 scene = bpy.context.scene
 
+
+SHOT_SCALE = {
+    "600-020": (0.005, 0.005, 0.005),
+    "600-030": (0.003, 0.003, 0.003),
+}
+
+
 def load_shot(shot_caches, shot_name):
     view_layer = bpy.context.view_layer
     view_layer.name = "MasterLayer"
@@ -20,16 +27,17 @@ def load_shot(shot_caches, shot_name):
     view_layer.use_pass_normal = True
     view_layer.eevee.use_pass_transparent = True
 
-    # delete default scene
+    scale = SHOT_SCALE.get(shot_name) or (0.01, 0.01, 0.01)
+
     scene_utils.clear_scene()
 
     for cache in shot_caches:
-        load_cache_in_collection(cache)
+        load_cache_in_collection(cache, scale)
 
     metadata = dictionary_load(shot_name)
     cam_bake = dictionary_load(shot_name, json_file_name="camera")
 
-    camera_setup(cam_bake, overscan=15)
+    camera_setup(cam_bake, overscan=15, scale=scale)
     material_assigner.slim_shade(metadata)
 
     for collection in bpy.data.collections:
@@ -135,21 +143,21 @@ def holdout_collection(view_layer, collection):
             layer_collection.holdout = True
 
 
-def load_cache_in_collection(cache):
+def load_cache_in_collection(cache, scale=(0.01, 0.01, 0.01)):
     cache_path = pathlib.Path(cache)
 
     if not cache_path.suffix == ".abc":
+        LOGGER.warning(f"Not loading {cache} as it has no supported file path.")
         return
 
     LOGGER.info(f"Loading {cache_path.stem}")
     naming_elements = cache_path.stem.split("_")[-1].split("-")
 
     if len(naming_elements) > 1:
-        cache_name = "_".join(naming_elements[0:-1])
+        name = "_".join(naming_elements[0:-1])
     else:
-        cache_name = naming_elements[0]
+        name = naming_elements[0]
 
-    collection = create_collection(cache_name, unique=False)
     imported_objects = import_alembic(cache)
     root_object = get_imported_root_objects(imported_objects)
     root_object.select_set(True)
@@ -157,23 +165,18 @@ def load_cache_in_collection(cache):
     bpy.ops.object.select_grouped(type='CHILDREN_RECURSIVE')
 
     root_object.select_set(True)
-    bpy.context.active_object.scale = (0.01, 0.01, 0.01)
+    bpy.context.active_object.scale = scale
 
     for obj in bpy.context.selected_objects:
-        if cache_name == "static":
-            if deselect_matte(obj):
-                # matte nodes
-                bpy.context.scene.collection.objects.unlink(obj)
-                mattes_collection = create_collection("mattes", unique=False)
-                mattes_collection.objects.link(obj)
-            # if it is everything else
-            else:
-                link_to_collection(obj, collection)
-        else:
-            LOGGER.info(obj.name)
-            link_to_collection(obj, collection)
+        collection_name = name
+        if name == "static" and deselect_matte(obj):
+            collection_name ="mattes"
+        collection = create_collection(collection_name, unique=False)
+        link_to_collection(obj, collection)
 
-    LOGGER.info(f"Loaded and sorted {cache_path.stem} in {collection}")
+    LOGGER.info(f"Loaded and sorted {cache_path.stem}")
+
+
     bpy.ops.object.select_all(action='DESELECT')
 
 
@@ -188,6 +191,8 @@ def create_collection(collection_name, unique=True):
 
 
 def get_unique_collection_name(name):
+    if not bpy.data.collections.get(name):
+        return name
     counter = 1
     original_name = name
     while bpy.data.collections.get(name):
@@ -250,12 +255,13 @@ def link_to_collection(root_object, collection):
     collection.objects.link(root_object)
 
 
-def camera_setup(cam_bake, overscan=0):
+def camera_setup(cam_bake, overscan=0, scale=(0.01, 0.01, 0.01)):
     """Sets up camera from Maya bake data.
 
     Args:
         cam_bake: Dictionary with Cam Values from Maya
         overscan: Overscan in Percent
+        scale: Scale Factor
 
     Returns:
         cam: Camera Node in Blender
@@ -265,6 +271,7 @@ def camera_setup(cam_bake, overscan=0):
     render_cami = bpy.context.active_object
     render_cami.name = "render_cami"
     render_cami.data.sensor_fit = 'VERTICAL'
+    sx, sy, sz = scale
 
     for frame, frame_data in cam_bake.items():
         vertical_film_aperture = frame_data.get("vertical_film_aperture") or 1
@@ -274,7 +281,7 @@ def camera_setup(cam_bake, overscan=0):
         tx, ty, tz = frame_data["translation"]
         rx, ry, rz = frame_data["rotation"]
 
-        render_cami.location = (tx / 100, -tz / 100, ty / 100)
+        render_cami.location = (tx * sx, -tz * sz, ty * sy)
         render_cami.rotation_euler = (
             math.radians(rx+90),
             math.radians(rz),
@@ -320,7 +327,7 @@ def deselect_matte(obj):
     """
     # added plane here because apparently this is a name we use for mattes
     # and come on, if we want something to be shaded correctly lets not name it plane
-    if "walls" in obj.name.lower() or "plane" in obj.name.lower() or "tintoy" in obj.name.lower() or "gertie" in obj.name.lower():
+    if "walls" in obj.name.lower() or "plane" in obj.name.lower() or "tintoy" in obj.name.lower() or "gertie" in obj.name.lower() or "hill" in obj.name.lower():
         LOGGER.info(obj.name)
         return True
     return False
