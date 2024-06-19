@@ -103,9 +103,7 @@ def apply_grease_pencil(collection):
             factor = 0.05,
             factor_strength = 0.03,
             factor_thickness = 0.2,
-            use_random = True,
-            random_mode = "STEP",
-            step = 74,
+            use_random = False,
         )
 
     add_gp_modifier(
@@ -126,7 +124,7 @@ def apply_grease_pencil(collection):
         noise_scale = 1,
         noise_offset = 0,
         seed = 1,
-        use_random = True,
+        use_random = False,
     )
 
     bpy.data.collections.new(f"{collection.name}_grease")
