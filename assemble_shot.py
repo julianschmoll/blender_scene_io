@@ -37,7 +37,7 @@ def load_shot(shot_caches, shot_name):
     metadata = dictionary_load(shot_name)
     cam_bake = dictionary_load(shot_name, json_file_name="camera")
 
-    camera_setup(cam_bake, overscan=15, scale=scale)
+    camera_setup(cam_bake, overscan=12.5, scale=scale)
     material_assigner.slim_shade(metadata)
 
     for collection in bpy.data.collections:
