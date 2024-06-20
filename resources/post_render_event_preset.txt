@@ -1,0 +1,516 @@
+General
+{
+	Name = "event"
+	SelectedGroups = 2048
+}
+
+Data
+{
+	ValueCount = 61
+
+	Value01
+	{
+		Type = 1
+		Name = "FrameChecking_ExactMatch"
+		Value = "false"
+	}
+
+
+	Value02
+	{
+		Type = 4
+		Name = "FrameChecking_ImageName"
+		Value = ""
+	}
+
+
+	Value03
+	{
+		Type = 2
+		Name = "MinDispatchDelay"
+		Value = "0"
+	}
+
+
+	Value04
+	{
+		Type = 4
+		Name = "BlockedClients"
+		Value = ""
+	}
+
+
+	Value05
+	{
+		Type = 2
+		Name = "SplitMode_Count"
+		Value = "-1"
+	}
+
+
+	Value06
+	{
+		Type = 1
+		Name = "ChunkDispatchFirstLastFirst"
+		Value = "false"
+	}
+
+
+	Value07
+	{
+		Type = 2
+		Name = "SliceMode_Overlap"
+		Value = "0"
+	}
+
+
+	Value08
+	{
+		Type = 2
+		Name = "RenderCoreCount"
+		Value = "1"
+	}
+
+
+	Value09
+	{
+		Type = 4
+		Name = "RenderSet"
+		Value = "<RenderSet>\n\t<Renderer></Renderer>\n\t<Values></Values>\n</RenderSet>\n"
+	}
+
+
+	Value10
+	{
+		Type = 2
+		Name = "FrameChecking_FilesizeThreshold"
+		Value = "0"
+	}
+
+
+	Value11
+	{
+		Type = 1
+		Name = "TimeThresholds_UseUpperThreshold"
+		Value = "false"
+	}
+
+
+	Value12
+	{
+		Type = 2
+		Name = "FrameChecking_Padding"
+		Value = "0"
+	}
+
+
+	Value13
+	{
+		Type = 1
+		Name = "ErrorHandling_IncRecreatedChunks"
+		Value = "false"
+	}
+
+
+	Value14
+	{
+		Type = 4
+		Name = "EmailRecipients"
+		Value = ""
+	}
+
+
+	Value15
+	{
+		Type = 1
+		Name = "FrameChecking_RecurseSubdirs"
+		Value = "false"
+	}
+
+
+	Value16
+	{
+		Type = 2
+		Name = "TimeThresholds_UpperThresholdSec"
+		Value = "0"
+	}
+
+
+	Value17
+	{
+		Type = 2
+		Name = "TimeThresholds_UpperThresholdMin"
+		Value = "0"
+	}
+
+
+	Value18
+	{
+		Type = 1
+		Name = "TimeThresholds_UseLowerThreshold"
+		Value = "false"
+	}
+
+
+	Value19
+	{
+		Type = 4
+		Name = "SliceMode_Format"
+		Value = ""
+	}
+
+
+	Value20
+	{
+		Type = 2
+		Name = "ChunkDispatchOrder"
+		Value = "0"
+	}
+
+
+	Value21
+	{
+		Type = 2
+		Name = "Priority"
+		Value = "0"
+	}
+
+
+	Value22
+	{
+		Type = 3
+		Name = "CreationDate"
+		Value = "45463.634977"
+	}
+
+
+	Value23
+	{
+		Type = 4
+		Name = "Renderer"
+		Value = ""
+	}
+
+
+	Value24
+	{
+		Type = 2
+		Name = "MinClientPriority"
+		Value = "-1"
+	}
+
+
+	Value25
+	{
+		Type = 4
+		Name = "Tags"
+		Value = ""
+	}
+
+
+	Value26
+	{
+		Type = 1
+		Name = "FrameChecking_DisableForCreatedJobs"
+		Value = "false"
+	}
+
+
+	Value27
+	{
+		Type = 2
+		Name = "TimeThresholds_UpperThresholdAction"
+		Value = "0"
+	}
+
+
+	Value28
+	{
+		Type = 2
+		Name = "TimeThresholds_LowerThresholdSec"
+		Value = "0"
+	}
+
+
+	Value29
+	{
+		Type = 1
+		Name = "SendEmails"
+		Value = "true"
+	}
+
+
+	Value30
+	{
+		Type = 2
+		Name = "NetJobID"
+		Value = "0"
+	}
+
+
+	Value31
+	{
+		Type = 2
+		Name = "TimeThresholds_LowerThresholdMin"
+		Value = "0"
+	}
+
+
+	Value32
+	{
+		Type = 3
+		Name = "Scheduling_DateTime"
+		Value = "45463.634977"
+	}
+
+
+	Value33
+	{
+		Type = 2
+		Name = "SliceMode_CX"
+		Value = "-1"
+	}
+
+
+	Value34
+	{
+		Type = 2
+		Name = "SplitMode_Mode"
+		Value = "0"
+	}
+
+
+	Value35
+	{
+		Type = 4
+		Name = "CustomFields"
+		Value = ""
+	}
+
+
+	Value36
+	{
+		Type = 2
+		Name = "MinClientMemory"
+		Value = "0"
+	}
+
+
+	Value37
+	{
+		Type = 1
+		Name = "DepTreatUnfinishedAsDone"
+		Value = "false"
+	}
+
+
+	Value38
+	{
+		Type = 1
+		Name = "CacheScenesLocally"
+		Value = "false"
+	}
+
+
+	Value39
+	{
+		Type = 4
+		Name = "Name"
+		Value = ""
+	}
+
+
+	Value40
+	{
+		Type = 4
+		Name = "PoolList"
+		Value = ""
+	}
+
+
+	Value41
+	{
+		Type = 4
+		Name = "Notes"
+		Value = ""
+	}
+
+
+	Value42
+	{
+		Type = 2
+		Name = "FrameChecking_Method"
+		Value = "0"
+	}
+
+
+	Value43
+	{
+		Type = 2
+		Name = "ClientLimit"
+		Value = "-1"
+	}
+
+
+	Value44
+	{
+		Type = 1
+		Name = "Scheduling_UseScheduling"
+		Value = "false"
+	}
+
+
+	Value45
+	{
+		Type = 4
+		Name = "ExtendedSplitting"
+		Value = ""
+	}
+
+
+	Value46
+	{
+		Type = 2
+		Name = "SliceMode_RY"
+		Value = "-1"
+	}
+
+
+	Value47
+	{
+		Type = 1
+		Name = "Renderer32bit"
+		Value = "false"
+	}
+
+
+	Value48
+	{
+		Type = 4
+		Name = "Project"
+		Value = ""
+	}
+
+
+	Value49
+	{
+		Type = 4
+		Name = "FrameChecking_ImageDir"
+		Value = ""
+	}
+
+
+	Value50
+	{
+		Type = 1
+		Name = "Renderer64bit"
+		Value = "false"
+	}
+
+
+	Value51
+	{
+		Type = 1
+		Name = "Paused"
+		Value = "false"
+	}
+
+
+	Value52
+	{
+		Type = 2
+		Name = "ErrorHandling_Action"
+		Value = "0"
+	}
+
+
+	Value53
+	{
+		Type = 2
+		Name = "ErrorHandling_Tolerance"
+		Value = "0"
+	}
+
+
+	Value54
+	{
+		Type = 2
+		Name = "TimeThresholds_LowerThresholdAction"
+		Value = "0"
+	}
+
+
+	Value55
+	{
+		Type = 4
+		Name = "Dependencies"
+		Value = ""
+	}
+
+
+	Value56
+	{
+		Type = 2
+		Name = "SliceMode_Mode"
+		Value = "0"
+	}
+
+
+	Value57
+	{
+		Type = 2
+		Name = "DepType"
+		Value = "0"
+	}
+
+
+	Value58
+	{
+		Type = 4
+		Name = "EmailUsers"
+		Value = ""
+	}
+
+
+	Value59
+	{
+		Type = 1
+		Name = "Urgent"
+		Value = "false"
+	}
+
+
+	Value60
+	{
+		Type = 2
+		Name = "Color"
+		Value = "-16777216"
+	}
+
+
+	Value61
+	{
+		Type = 3
+		Name = "FinishDate"
+		Value = "45463.634977"
+	}
+}
+
+Events
+{
+	Count = 1
+
+	Event00
+	{
+		Scope = 289
+		Type = 2
+		Name = "Convert QC Render"
+		Flags = 1
+
+		Contents
+		{
+			Count = 1
+			Entry00 = "$FFMPEG_CMD"
+		}
+	}
+}
