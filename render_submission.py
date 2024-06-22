@@ -162,6 +162,8 @@ def assemble_ffmpeg_rset(scene_path, shot, version):
         if version_folder.startswith(path_elem[-3]):
             v_f = version_folder
 
+    os.makedirs(v_f, exist_ok=True)
+
     parent_path = os.path.dirname(scene_path)
     root_dir = os.path.dirname(os.path.abspath(__file__))
     file = os.path.join(root_dir, "resources", "ffmpeg_rset_template.txt")
