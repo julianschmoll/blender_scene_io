@@ -39,12 +39,14 @@ def check_animated_frames(collection_names, framerange=None):
 
     collection_map = {}
     for collection in collection_names:
-        collection_map[collection] = {
-            "objects": bpy.data.collections.get(collection).all_objects,
-            "animated_frames": [scene.frame_start],
-            "sequence_cache": get_cache_file(collection),
-            "previous_frame_pos": set(),
-        }
+        sequence_cache = get_cache_file(collection)
+        if sequence_cache:
+            collection_map[collection] = {
+                "objects": bpy.data.collections.get(collection).all_objects,
+                "animated_frames": [scene.frame_start],
+                "sequence_cache": sequence_cache,
+                "previous_frame_pos": set(),
+            }
 
     for _, collection in collection_map.items():
         collection["sequence_cache"].override_frame = True
@@ -77,7 +79,7 @@ def check_animated_frames(collection_names, framerange=None):
         collection["sequence_cache"].override_frame = False
 
     animated_frames = {}
-    for collection in collection_names:
+    for collection in collection_map.keys():
         animated_frames[collection] = collection_map[collection]["animated_frames"]
 
     return animated_frames

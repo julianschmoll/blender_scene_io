@@ -14,13 +14,14 @@ def submit_render(dry_run=False):
     scene_path = scene_utils.get_scene_file_path()
     nice_name = assemble_render_set_name(scene_path)
     project_name, shot, version, user = nice_name.split("_")
-    ffmpeg_cmd = assemble_ffmpeg_cmd()
+    ffmpeg_cmd = "deprecated"
+    ffmpeg_rset = assemble_ffmpeg_rset(scene_path, shot, version)
 
     render_set = create_render_set(
         scene_path, ffmpeg_cmd, shot.split("-")[0], shot.split("-")[-1], version
     )
 
-    cmd = assemble_cmd(
+    cmd = assemble_render_cmd(
         nice_name,
         create_import_set(scene_path),
         scene_path,
@@ -34,10 +35,19 @@ def submit_render(dry_run=False):
 
     scene_utils.save_scenefile()
     run_wake_up_bats()
-    subprocess.Popen(cmd)
+    child = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+
+    streamdata = child.communicate()[0]
+    rc = child.returncode
+
+    print(f"Return Code: {rc}")
+
+    ffmpeg_cmd = assemble_ffmpeg_cmd(f"CONVERT_{nice_name}", ffmpeg_rset, rc)
+    print(ffmpeg_cmd)
+    subprocess.Popen(ffmpeg_cmd)
 
     ui.ShowMessageBox(
-        message=f"Succesfully submitted {nice_name} to Renderpal.",
+        message=f"Succesfully submitted {nice_name} to Renderpal. Job ID: {rc}",
         title="Renderpal Submission"
     )
 
@@ -50,12 +60,7 @@ def assemble_render_set_name(scene_path):
     return nice_name
 
 
-def assemble_cmd(render_name, import_set, scene_path, nj_preset, chunk_size=15):
-    # -retnj When specified, the ID of the newly created net job will be returned by the
-    # executable.
-    # -nj_dependency <id> <id>: ID of the net job the new net job should depend on
-    # -nj_color ”<r>,<g>,<b>” Color
-    # -nj_tags
+def assemble_render_cmd(render_name, import_set, scene_path, nj_preset, chunk_size=15):
     return " ".join(
         [
             f'"{get_renderpal_exe()}"',
@@ -63,10 +68,28 @@ def assemble_cmd(render_name, import_set, scene_path, nj_preset, chunk_size=15):
             f'-nj_preset="{nj_preset}"',
             '-nj_renderer="Blender/Frog Render"',
             f'-nj_splitmode="2,{chunk_size}"',
+            "-retnjid ",
             f'-nj_name="{render_name}"',
             '-nj_project="Frogging Hell"',
             f'-importset="{import_set}"',
             f'"{scene_path}"',
+        ]
+    )
+
+
+def assemble_ffmpeg_cmd(render_name, import_set, dep_id):
+    return " ".join(
+        [
+            f'"{get_renderpal_exe()}"',
+            '-login="ca-user:polytopixel"',
+            '-nj_renderer="Frog FFmpeg/Default version"',
+            "-retnjid",
+            f"-nj_dependency {dep_id}",
+            "-nj_deptype 0",
+            f'-nj_name="{render_name}"',
+            '-nj_project="Frogging Hell"',
+            f'-importset="{import_set}"',
+            "FFMPEG"
         ]
     )
 
@@ -124,7 +147,7 @@ def run_wake_up_bats():
     )
 
 
-def assemble_ffmpeg_cmd():
+def assemble_ffmpeg_rset(scene_path, shot, version):
     scn = bpy.context.scene
     search_path = scn.node_tree.nodes["File Output"].base_path.replace("####", "%04d").replace(os.sep, "/")
     path_elem = search_path.split("/")
@@ -139,22 +162,27 @@ def assemble_ffmpeg_cmd():
         if version_folder.startswith(path_elem[-3]):
             v_f = version_folder
 
-    return " ".join(
-        [
-            get_ffmpeg_exe().replace(os.sep, "/"),
-            '-layer "Image"',
-            "-framerate 25",
-            f"-start_number {int(scn.frame_start)}",
-            f"-i {search_path}",
-            "-c:v libx264",
-            "-crf 20",
-            "-vf format=yuv420p",
-            "-movflags",
-            "+faststart",
-            "-r 25",
-            os.path.join(playblast_path, v_f, "qc_render.mp4").replace(os.sep, "/")
-        ]
-    )
+    parent_path = os.path.dirname(scene_path)
+    root_dir = os.path.dirname(os.path.abspath(__file__))
+    file = os.path.join(root_dir, "resources", "ffmpeg_rset_template.txt")
+
+    d = {
+        "input": search_path,
+        "out_dir":os.path.join(playblast_path, v_f).replace(os.sep, "/"),
+        "out_file": f"Shot_{shot}_{version}_qc_render.mp4",
+        "start_frame":int(scn.frame_start)
+    }
+
+    with open(file, "r") as f:
+        src = Template(f.read())
+        result = src.substitute(d)
+
+    r_set_file = os.path.join(parent_path, f"ffmpeg_render_set_{version}.rnjprs")
+
+    with open(r_set_file, "w") as r_set:
+        r_set.write(result)
+
+    return r_set_file
 
 
 def get_renderpal_exe():
