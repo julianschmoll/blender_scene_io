@@ -48,6 +48,8 @@ def load_shot(shot_caches, shot_name):
 
     bpy.context.window.view_layer = bpy.context.scene.view_layers['MasterLayer']
 
+    if metadata["context"].get("start_frame"):
+        bpy.context.scene.frame_start = metadata["context"].get("start_frame")
     comp_script.comp_setup()
 
     scene_utils.save_scenefile(assemble_save_path(metadata.get("context")))
