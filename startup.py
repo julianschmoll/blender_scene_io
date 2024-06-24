@@ -2,6 +2,10 @@ from blender_scene_io import assemble_shot
 from blender_scene_io import render_submission
 from blender_scene_io import render_setup
 from blender_scene_io import frogging_hell_menu
+import os
+import pkgutil
+import sys
+
 
 import bpy
 import logging
@@ -18,7 +22,24 @@ def run_startup_scripts():
     frogging_hell_menu.register()
     LOGGER.info("Running Render Setup Scripts...")
     render_setup.set_render_settings()
+    LOGGER.info("Importing Operators...")
+    import_operators()
     LOGGER.info("Happy Blending!")
+
+
+def import_operators():
+    operator_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "operators"
+    )
+    sys.path.append(operator_path)
+    for x in os.listdir(operator_path):
+        if not x.startswith('__'):
+            operator = __import__(
+                os.path.basename(x)[:-3], globals(), locals()
+            )
+            print(operator)
+            operator.register()
 
 
 def assemble_and_submit_shot(shot_name):
