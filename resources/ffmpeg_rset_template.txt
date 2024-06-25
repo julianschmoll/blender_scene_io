@@ -17,7 +17,7 @@
 			<Value>&quot;Image&quot;</Value>
 		</layer>
 		<movflags>
-			<Value>+faststart</Value>
+			<Value>+faststart -y</Value>
 		</movflags>
 		<outdir>
 			<Value>$out_dir</Value>
