@@ -27,6 +27,9 @@ class FrogMenu(bpy.types.Menu):
             text=f"Submit to Renderpal",
             icon='RENDER_ANIMATION'
         )
+        layout.separator()
+        layout.label(text="Utilities", icon='SURFACE_NTORUS')
+        # layout.menu("OBJECT_MT_frog_utils", icon="FILE_SCRIPT")
 
 class AssembleShotSubMenu(bpy.types.Menu):
     bl_label = "Assemble Shot"
@@ -48,6 +51,16 @@ class AssembleShotSubMenu(bpy.types.Menu):
                 "object.shot_assembly_operator",
                 text=f"Shot {' '.join(shot.split('-')[1:]).title()}"
             ).shot_name = shot
+
+
+class FrogUtilsSubMenu(bpy.types.Menu):
+    bl_label = "Frog Utils"
+    bl_idname = "OBJECT_MT_frog_utils"
+    LOGGER.info("Frog Utils")
+
+    def draw(self, context):
+        layout = self.layout
+        layout.label(text="Frog Utils")
 
 
 class ImportShot(bpy.types.Operator):
@@ -122,6 +135,7 @@ def register():
     bpy.utils.register_class(ImportShot)
     bpy.utils.register_class(RenderShot)
     bpy.utils.register_class(AssembleShotSubMenu)
+    bpy.utils.register_class(FrogUtilsSubMenu)
     bpy.types.TOPBAR_MT_editor_menus.append(draw_menu)
 
 
@@ -129,5 +143,6 @@ def unregister():
     bpy.types.VIEW3D_MT_curve_add.remove(draw_menu)
     bpy.utils.unregister_class(ImportShot)
     bpy.utils.unregister_class(AssembleShotSubMenu)
+    bpy.utils.unregister_class(FrogUtilsSubMenu)
     bpy.utils.unregister_class(FrogMenu)
     bpy.utils.unregister_class(RenderShot)
