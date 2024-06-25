@@ -37,6 +37,10 @@ def check_animated_frames(collection_names, framerange=None):
     if not framerange:
         framerange = (scene.frame_start, scene.frame_end)
 
+    cami = bpy.data.cameras["Camera"]
+    cami_list = []
+    previous_cam_pos = []
+
     collection_map = {}
     for collection in collection_names:
         sequence_cache = get_cache_file(collection)
@@ -60,11 +64,29 @@ def check_animated_frames(collection_names, framerange=None):
         for obj in collection["objects"]:
             collection["previous_frame_pos"].add(get_vert_posisions(obj, dg))
 
+    if cami:
+        previous_cam_pos = [
+            cami.lens,
+            cami.shift_x,
+            cami.shift_y
+        ]
+
     for frame in range(*framerange):
         for _, collection in collection_map.items():
             collection["sequence_cache"].frame = frame
 
         dg = bpy.context.evaluated_depsgraph_get()
+
+        if cami:
+            scene.frame_current = frame
+            current_cam_pos = [
+                cami.lens,
+                cami.shift_x,
+                cami.shift_y
+            ]
+            if not previous_cam_pos == current_cam_pos:
+                cami_list.append(frame)
+            previous_cam_pos = current_cam_pos
 
         for _, collection in collection_map.items():
             current_frame_pos = set()
@@ -83,5 +105,7 @@ def check_animated_frames(collection_names, framerange=None):
     animated_frames = {}
     for collection in collection_map.keys():
         animated_frames[collection] = collection_map[collection]["animated_frames"]
+        if cami:
+            animated_frames["cami"] = cami_list
 
     return animated_frames
