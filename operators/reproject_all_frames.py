@@ -4,7 +4,11 @@ bl_info = {
     "category": ""
 }
 import bpy
-from blender_scene_io import mesh_utils
+import os
+import pathlib
+import json
+
+from blender_scene_io import scene_utils
 
 
 class GpReprojectAllFramesOperator(bpy.types.Operator):
@@ -22,18 +26,38 @@ class GpReprojectAllFramesOperator(bpy.types.Operator):
         bpy.ops.screen.frame_jump(end=False)
 
         source_collection = gp_obj.grease_pencil_modifiers[f"{gp_obj.name}_lineart"].source_collection.name
-        moved_frames = set(mesh_utils.check_animated_frames([source_collection]).get(source_collection))
-        print(moved_frames)
 
-        i = 0
-        while scene.frame_current <= scene.frame_end:
-            if not scene.frame_current in moved_frames:
-                bpy.ops.gpencil.delete(type='FRAME')
+        file = pathlib.Path(scene_utils.get_scene_file_path())
+        name = file.name
+        json_path = os.path.join(
+            file.parent,
+            "_".join([
+                *name.split("_")[0:3],
+                "animation-data",
+                *name.split("_")[4:6],
+                ".json"
+            ])
+        )
+        if not os.path.isfile(json_path):
+            bpy.ops.gpencil.check_animated_frames()
 
+        with open(json_path, "r") as json_file:
+            animated_frames = set(json.load(json_file).get(source_collection))
+
+        start, end = scene_utils.get_frame_ramge()
+        animated_frames.add(end)
+        for _ in range(start, end+1):
+            if not scene.frame_current in animated_frames:
+                try:
+                    bpy.ops.gpencil.delete(type='FRAME')
+                except RuntimeError:
+                    print(f"Could not delete {scene.frame_current}")
             bpy.ops.gpencil.select_all(action='SELECT')
-            bpy.ops.gpencil.reproject(type='VIEW', keep_original=False, offset=5.0)
+            try:
+                bpy.ops.gpencil.reproject(type='VIEW', keep_original=False)
+            except RuntimeError:
+                print(f"Did not reproject {scene.frame_current}")
             bpy.ops.screen.frame_offset(delta=1)
-            i += 1
 
         bpy.ops.gpencil.frame_clean_loose()
 
