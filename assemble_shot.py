@@ -23,7 +23,7 @@ def load_shot(shot_caches, shot_name):
     view_layer = bpy.context.view_layer
     view_layer.name = "MasterLayer"
     view_layer.use_pass_combined = True
-    view_layer.use_pass_z = True
+    view_layer.use_pass_z = False
     view_layer.use_pass_normal = True
     view_layer.eevee.use_pass_transparent = True
 
@@ -65,7 +65,7 @@ def create_clean_layer():
     view_layer = bpy.context.view_layer
     view_layer.name = "NoGreaseLayer"
     view_layer.use_pass_combined = True
-    view_layer.use_pass_z = True
+    view_layer.use_pass_z = False
     view_layer.use_pass_normal = True
     view_layer.eevee.use_pass_transparent = True
 
@@ -84,7 +84,7 @@ def create_grease_layer():
     view_layer = bpy.context.view_layer
     view_layer.name = "GreaseLayer"
     view_layer.use_pass_combined = True
-    view_layer.use_pass_z = True
+    view_layer.use_pass_z = False
     view_layer.use_pass_normal = True
     view_layer.eevee.use_pass_transparent = True
 
@@ -122,7 +122,7 @@ def create_renderlayer_from_collection(collection):
     view_layer = bpy.context.view_layer
     view_layer.name = f"{layer_name}Layer"
     view_layer.use_pass_combined = True
-    view_layer.use_pass_z = True
+    view_layer.use_pass_z = False
     view_layer.use_pass_normal = True
     view_layer.eevee.use_pass_transparent = True
     include_collections(view_layer, [collection])
