@@ -2,7 +2,9 @@ import bpy
 import os
 import logging
 import ctypes
+import pathlib
 
+from blender_scene_io import ui
 
 LOGGER = logging.getLogger("Scene Utils")
 
@@ -37,6 +39,10 @@ def save_scenefile(filepath=None):
     if filepath:
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
         bpy.ops.wm.save_as_mainfile(filepath=filepath, relative_remap = False)
+        ui.ShowMessageBox(
+            message=f"Saved to {filepath}",
+            title="Frog Pipeline"
+        )
     else:
         bpy.ops.wm.save_mainfile(relative_remap = False)
 
@@ -97,3 +103,44 @@ def set_time_slider_view():
                         bpy.ops.action.view_all()
                     break
             break
+
+
+def save_increment():
+    usr = get_user_abbr()
+    filepath = pathlib.Path(get_scene_file_path())
+    folder = filepath.parent
+    version = get_highest_shot_version(folder)
+    new_version = f"v{str(version + 1).zfill(4)}"
+    original_name = filepath.name
+
+    naming_elements = original_name.split("_")
+    naming_elements[-3] = new_version
+    naming_elements[-2] = usr
+
+    file_name = "_".join(naming_elements)
+    save_scenefile(os.path.join(folder, file_name))
+    set_render_paths()
+
+
+def get_highest_shot_version(folder, full_name=False):
+    version = 1
+    name = ""
+    for file in os.listdir(folder):
+        if not file.endswith(".blend"):
+            continue
+        current_version = int(file.split("_")[-3][1:])
+        if current_version > version:
+            version = current_version
+            name = file
+    if full_name:
+        return name
+    return version
+
+
+def open_shot(shot_name):
+    shot_folder = os.path.join(
+        "M:/", "frogging_hell_prism", "02_Library", "Shots", shot_name, "Scenefiles", "shd", "Shading"
+    )
+    shot = get_highest_shot_version(shot_folder, full_name=True)
+    shot_file = os.path.join(shot_folder, shot)
+    bpy.ops.wm.open_mainfile(filepath=shot_file)
