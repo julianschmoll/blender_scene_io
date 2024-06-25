@@ -1,6 +1,6 @@
 from blender_scene_io import assemble_shot
 from blender_scene_io import render_submission
-from blender_scene_io import comp_script
+from blender_scene_io import scene_utils
 
 import bpy
 import os
@@ -20,6 +20,7 @@ class FrogMenu(bpy.types.Menu):
         layout = self.layout
         layout.label(text="Import", icon='IMPORT')
         layout.menu("OBJECT_MT_shot_assembly_menu", icon="ASSET_MANAGER")
+        layout.menu("OBJECT_MT_open_shot_menu", icon="ASSET_MANAGER")
         layout.separator()
         layout.label(text="Export", icon='EXPORT')
         layout.operator(
@@ -53,6 +54,27 @@ class AssembleShotSubMenu(bpy.types.Menu):
             ).shot_name = shot
 
 
+class OpenShotSubMenu(bpy.types.Menu):
+    bl_label = "Open Latest Shot Version"
+    bl_idname = "OBJECT_MT_open_shot_menu"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.label(text="Select Shot to open")
+
+        sequence = ""
+        for shot in get_shot_list():
+            if sequence != shot.split("-")[0]:
+                layout.separator()
+                sequence = shot.split("-")[0]
+                layout.label(text=f"Sequence {sequence}", icon='SEQUENCE')
+            LOGGER.debug(f"Populated Shot Assembly menu with {shot}")
+            layout.operator(
+                "object.open_shot_operator",
+                text=f"Shot {' '.join(shot.split('-')[1:]).title()}"
+            ).shot_name = shot
+
+
 class FrogUtilsSubMenu(bpy.types.Menu):
     bl_label = "Frog Utils"
     bl_idname = "OBJECT_MT_frog_utils"
@@ -78,6 +100,18 @@ class ImportShot(bpy.types.Operator):
         self.report({"INFO"}, f"Executing Shot Assembly for {self.shot_name}")
         assemble_shot.load_shot(shot_caches, self.shot_name)
         return {'FINISHED'}
+
+
+class OpenShot(bpy.types.Operator):
+    """Import Shot Caches for selected shot"""
+    bl_label = "Open Shot Operator"
+    bl_idname = "object.open_shot_operator"
+    shot_name: bpy.props.StringProperty(name="")
+
+    def execute(self, context):
+        scene_utils.open_shot(self.shot_name)
+        return {'FINISHED'}
+
 
 class RenderShot(bpy.types.Operator):
     """Submit Job to render with RenderPal"""
@@ -133,8 +167,10 @@ def draw_menu(self, context):
 def register():
     bpy.utils.register_class(FrogMenu)
     bpy.utils.register_class(ImportShot)
+    bpy.utils.register_class(OpenShot)
     bpy.utils.register_class(RenderShot)
     bpy.utils.register_class(AssembleShotSubMenu)
+    bpy.utils.register_class(OpenShotSubMenu)
     bpy.utils.register_class(FrogUtilsSubMenu)
     bpy.types.TOPBAR_MT_editor_menus.append(draw_menu)
 
@@ -142,7 +178,9 @@ def register():
 def unregister():
     bpy.types.VIEW3D_MT_curve_add.remove(draw_menu)
     bpy.utils.unregister_class(ImportShot)
+    bpy.utils.unregister_class(OpenShot)
     bpy.utils.unregister_class(AssembleShotSubMenu)
+    bpy.utils.register_class(OpenShotSubMenu)
     bpy.utils.unregister_class(FrogUtilsSubMenu)
     bpy.utils.unregister_class(FrogMenu)
     bpy.utils.unregister_class(RenderShot)
