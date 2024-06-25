@@ -15,7 +15,6 @@ def submit_render(dry_run=False):
     nice_name = assemble_render_set_name(scene_path)
     project_name, shot, version, user = nice_name.split("_")
     ffmpeg_cmd = "deprecated"
-    ffmpeg_rset = assemble_ffmpeg_rset(scene_path, shot, version)
 
     render_set = create_render_set(
         scene_path, ffmpeg_cmd, shot.split("-")[0], shot.split("-")[-1], version
@@ -42,6 +41,7 @@ def submit_render(dry_run=False):
 
     print(f"Return Code: {rc}")
 
+    ffmpeg_rset = assemble_ffmpeg_rset(scene_path, shot, version)
     ffmpeg_cmd = assemble_ffmpeg_cmd(f"CONVERT_{nice_name}", ffmpeg_rset, rc)
     print(ffmpeg_cmd)
     subprocess.Popen(ffmpeg_cmd)
@@ -162,7 +162,7 @@ def assemble_ffmpeg_rset(scene_path, shot, version):
         if version_folder.startswith(path_elem[-3]):
             v_f = version_folder
 
-    os.makedirs(v_f, exist_ok=True)
+    os.makedirs(os.path.join(playblast_path, v_f), exist_ok=True)
 
     parent_path = os.path.dirname(scene_path)
     root_dir = os.path.dirname(os.path.abspath(__file__))
@@ -172,7 +172,8 @@ def assemble_ffmpeg_rset(scene_path, shot, version):
         "input": search_path,
         "out_dir":os.path.join(playblast_path, v_f).replace(os.sep, "/"),
         "out_file": f"Shot_{shot}_{version}_qc_render.mp4",
-        "start_frame":int(scn.frame_start)
+        "start_frame":
+            int(scn.frame_start)
     }
 
     with open(file, "r") as f:
