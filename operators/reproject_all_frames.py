@@ -41,8 +41,13 @@ class GpReprojectAllFramesOperator(bpy.types.Operator):
         if not os.path.isfile(json_path):
             bpy.ops.gpencil.check_animated_frames()
 
+        animated_frames = set()
+
         with open(json_path, "r") as json_file:
-            animated_frames = set(json.load(json_file).get(source_collection))
+            anim_data = json.load(json_file)
+
+        for _, data in anim_data.items():
+            animated_frames.update(data)
 
         start, end = scene_utils.get_frame_ramge()
         animated_frames.add(end)
