@@ -41,8 +41,10 @@ def check_animated_frames(collection_names, framerange=None):
     for collection in collection_names:
         sequence_cache = get_cache_file(collection)
         if sequence_cache:
+            collection_objects = bpy.data.collections.get(collection).all_objects
+            LOGGER.info(f"Using {sequence_cache} for {collection}")
             collection_map[collection] = {
-                "objects": bpy.data.collections.get(collection).all_objects,
+                "objects": collection_objects,
                 "animated_frames": [scene.frame_start],
                 "sequence_cache": sequence_cache,
                 "previous_frame_pos": set(),
