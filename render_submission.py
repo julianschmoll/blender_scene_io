@@ -42,14 +42,15 @@ def submit_render(dry_run=False):
     print(f"Return Code: {rc}")
 
     ffmpeg_rset = assemble_ffmpeg_rset(scene_path, shot, version)
-    ffmpeg_cmd = assemble_ffmpeg_cmd(f"CONVERT_{nice_name}", ffmpeg_rset, rc)
-    print(ffmpeg_cmd)
-    subprocess.Popen(ffmpeg_cmd)
+    if ffmpeg_rset:
+        ffmpeg_cmd = assemble_ffmpeg_cmd(f"CONVERT_{nice_name}", ffmpeg_rset, rc)
+        subprocess.Popen(ffmpeg_cmd)
 
     ui.ShowMessageBox(
         message=f"Succesfully submitted {nice_name} to Renderpal. Job ID: {rc}",
         title="Renderpal Submission"
     )
+
 
 def assemble_render_set_name(scene_path):
     path_elem = scene_path.split(os.sep)
@@ -158,6 +159,10 @@ def assemble_ffmpeg_rset(scene_path, shot, version):
         "Animation"
     )
     v_f = path_elem[-3]
+
+    if os.path.isdir(playblast_path):
+        return False
+
     for version_folder in os.listdir(playblast_path):
         if version_folder.startswith(path_elem[-3]):
             v_f = version_folder
