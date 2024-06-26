@@ -14,7 +14,7 @@ from blender_scene_io import scene_utils
 class GpReprojectAllFramesOperator(bpy.types.Operator):
     """Project to view for all frames"""
     bl_idname = "gpencil.reproject_all_frames"
-    bl_label = "Reproject and Cleanup that Frog :)"
+    bl_label = "Reproject that Frog :)"
 
     @classmethod
     def poll(cls, context):
@@ -22,41 +22,10 @@ class GpReprojectAllFramesOperator(bpy.types.Operator):
 
     def execute(self, context):
         scene = context.scene
-        gp_obj = context.active_object
         bpy.ops.screen.frame_jump(end=False)
 
-        source_collection = gp_obj.grease_pencil_modifiers[f"{gp_obj.name}_lineart"].source_collection.name
-
-        file = pathlib.Path(scene_utils.get_scene_file_path())
-        name = file.name
-        json_path = os.path.join(
-            file.parent,
-            "_".join([
-                *name.split("_")[0:3],
-                "animation-data",
-                *name.split("_")[4:6],
-                ".json"
-            ])
-        )
-        if not os.path.isfile(json_path):
-            bpy.ops.gpencil.check_animated_frames()
-
-        animated_frames = set()
-
-        with open(json_path, "r") as json_file:
-            anim_data = json.load(json_file)
-
-        for _, data in anim_data.items():
-            animated_frames.update(data)
-
         start, end = scene_utils.get_frame_ramge()
-        animated_frames.add(end)
         for _ in range(start, end+1):
-            if not scene.frame_current in animated_frames:
-                try:
-                    bpy.ops.gpencil.delete(type='FRAME')
-                except RuntimeError:
-                    print(f"Could not delete {scene.frame_current}")
             bpy.ops.gpencil.select_all(action='SELECT')
             try:
                 bpy.ops.gpencil.reproject(type='VIEW', keep_original=False)
