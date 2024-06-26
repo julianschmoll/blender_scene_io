@@ -160,7 +160,7 @@ def assemble_ffmpeg_rset(scene_path, shot, version):
     )
     v_f = path_elem[-3]
 
-    if os.path.isdir(playblast_path):
+    if not os.path.isdir(playblast_path):
         return False
 
     for version_folder in os.listdir(playblast_path):
