@@ -175,7 +175,10 @@ def load_cache_in_collection(cache, scale=(0.01, 0.01, 0.01)):
         if name == "static" and deselect_matte(obj):
             collection_name ="mattes"
         collection = create_collection(collection_name, unique=False)
-        link_to_collection(obj, collection)
+        try:
+            link_to_collection(obj, collection)
+        except RuntimeError:
+            LOGGER.warning(f"Could not link {obj}")
 
     LOGGER.info(f"Loaded and sorted {cache_path.stem}")
 
