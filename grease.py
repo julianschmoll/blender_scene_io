@@ -127,8 +127,9 @@ def apply_grease_pencil(collection):
         use_random = False,
     )
 
-    bpy.data.collections.new(f"{collection.name}_grease")
-    bpy.context.scene.collection.children.link(bpy.data.collections[f"{collection.name}_grease"])
+    if not bpy.data.collections.get(f"{collection.name}_grease"):
+        bpy.data.collections.new(f"{collection.name}_grease")
+        bpy.context.scene.collection.children.link(bpy.data.collections[f"{collection.name}_grease"])
     bpy.data.collections[f"{collection.name}_grease"].objects.link(gpencil_object)
 
     return gpencil_object
