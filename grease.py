@@ -26,8 +26,8 @@ def apply_grease_pencil(collection):
         image = load_image(r"M:\frogging_hell_prism\06_Artist\juschli\brushes\background_element_outline.png")
         thickness = 8
     gp_mat = add_material(
-        collection,
-        image,
+        collection=collection,
+        image=image,
         pixel_size=pixel_size,
         color=color
     )
@@ -141,8 +141,13 @@ def load_image(path):
     return bpy.data.images.load(path)
 
 
-def add_material(collection, image=None, pixel_size=300.0, color=(0.0240566, 0.0240566, 0.0240566, 1)):
-    mat_name =f"{collection.name}_gp_material"
+def add_material(collection=None, name=None, image=None, pixel_size=300.0, color=(0.0240566, 0.0240566, 0.0240566, 1)):
+    if collection:
+        mat_name =f"{collection.name}_gp_material"
+    elif name:
+        mat_name = name
+    else:
+        mat_name = "gp_material"
     if mat_name in bpy.data.materials.keys():
         gp_mat = bpy.data.materials[mat_name]
     else:
