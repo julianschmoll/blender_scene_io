@@ -32,6 +32,7 @@ def submit_render(dry_run=False):
     if dry_run:
         return
 
+    bpy.ops.gpencil.change_blanket_material()
     scene_utils.save_scenefile()
     run_wake_up_bats()
     child = subprocess.Popen(cmd, stdout=subprocess.PIPE)

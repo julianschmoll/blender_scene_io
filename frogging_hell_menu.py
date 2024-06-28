@@ -110,6 +110,7 @@ class OpenShot(bpy.types.Operator):
 
     def execute(self, context):
         scene_utils.open_shot(self.shot_name)
+        bpy.ops.gpencil.change_blanket_material()
         return {'FINISHED'}
 
 

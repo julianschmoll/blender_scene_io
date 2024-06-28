@@ -92,7 +92,7 @@ def apply_texture(node, name, path):
     material.blend_method = 'HASHED'
 
 
-def apply_cell_shader(node, color=None, name="standard_cel_shader", ramp_range=0.3):
+def apply_cell_shader(node, color=None, factor=None, name="standard_cel_shader", ramp_range=0.3):
     """
     This function creates a Cel Shader and assigns it to all objects in the stati collection
     """
@@ -127,6 +127,9 @@ def apply_cell_shader(node, color=None, name="standard_cel_shader", ramp_range=0
             blue_value + color_offset,
             1
         )
+
+    if factor:
+        color_ramp_node.inputs[0].default_value = 0.4
 
     links.new(color_ramp_node.outputs['Color'], output_node.inputs['Surface'])
     node.data.materials.append(cel_shader)
