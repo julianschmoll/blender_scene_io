@@ -20,6 +20,9 @@ class FrChangeBlanketMaterial(bpy.types.Operator):
             if "blanket_geo" in obj.name:
                 obj.data.materials.clear()
                 material_assigner.apply_cell_shader(obj, name=f"{obj.name}_cel_shader", factor=0.4)
+            if "facecurve_sweep" in obj.name:
+                obj.data.materials.clear()
+                material_assigner.apply_cell_shader(obj, color=(0,0,0), name=f"{obj.name}_cel_shader", factor=0)
         return {'FINISHED'}
 
 
