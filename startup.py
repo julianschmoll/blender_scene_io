@@ -3,7 +3,6 @@ from blender_scene_io import render_submission
 from blender_scene_io import render_setup
 from blender_scene_io import frogging_hell_menu
 import os
-import pkgutil
 import sys
 
 
@@ -38,7 +37,7 @@ def import_operators():
             operator = __import__(
                 os.path.basename(x)[:-3], globals(), locals()
             )
-            print(operator)
+            LOGGER.info(f"Registering {operator}")
             operator.register()
 
 
