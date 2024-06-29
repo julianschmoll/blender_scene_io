@@ -18,6 +18,35 @@ SHOT_SCALE = {
     "600-030": (0.003, 0.003, 0.003),
 }
 
+COLLECTION_MAPPING = {
+    "prp_broom_big": "wall",
+    "prp_brush_bucket": "wall",
+    "prp_canvas_01": "wall",
+    "prp_canvas_02": "wall",
+    "prp_canvas_03": "wall",
+    "prp_door": "wall",
+    "prp_drawer": "wall",
+    "prp_drawer_smol": "wall",
+    "prp_standing_frame_h": "wall",
+    "prp_standing_frame": "wall",
+    "prp_urn_flip": "wall",
+    "prp_wardrobe": "wall",
+    "prp_paint_bucket_1": "wall",
+    "prp_paint_bucket_2": "wall",
+    "prp_paint_bucket_small": "wall",
+    "prp_paint_bucket2_1": "wall",
+    "prp_paint_bucket2_3": "wall",
+    "prp_paint_bucket2": "wall",
+    "prp_broom_small": "fg_left",
+    "prp_brush3": "fg_left",
+    "prp_cup": "fg_left",
+    "prp_paint_bucket": "fg_left",
+    "prp_paint_bucket_small_1": "fg_right",
+    "prp_paint_bucket2_2": "fg_right",
+    "prp_wickie_helmet": "fg_right",
+    "prp_cowboy_hat": "chr_frodo"
+}
+
 
 def load_shot(shot_caches, shot_name):
     view_layer = bpy.context.view_layer
@@ -37,7 +66,7 @@ def load_shot(shot_caches, shot_name):
     metadata = dictionary_load(shot_name)
     cam_bake = dictionary_load(shot_name, json_file_name="camera")
 
-    camera_setup(cam_bake, overscan=12.5, scale=scale)
+    camera_setup(cam_bake, overscan=30, scale=scale)
     material_assigner.slim_shade(metadata)
 
     for collection in bpy.data.collections:
@@ -155,9 +184,12 @@ def load_cache_in_collection(cache, scale=(0.01, 0.01, 0.01)):
 
     LOGGER.info(f"Loading {cache_path.stem}")
     naming_elements = cache_path.stem.split("_")[-1].split("-")
+    namespace = cache_path.stem.split("_")[-2]
 
     if len(naming_elements) > 1:
         name = "_".join(naming_elements[0:-1])
+        if namespace[-1].isdigit():
+            name = "_".join([*naming_elements[0:-1], namespace[-1]])
     else:
         name = naming_elements[0]
 
@@ -173,7 +205,9 @@ def load_cache_in_collection(cache, scale=(0.01, 0.01, 0.01)):
     for obj in bpy.context.selected_objects:
         collection_name = name
         if name == "static" and deselect_matte(obj):
-            collection_name ="mattes"
+            collection_name = "mattes"
+        if COLLECTION_MAPPING.get(name):
+            collection_name = COLLECTION_MAPPING.get(name)
         collection = create_collection(collection_name, unique=False)
         try:
             link_to_collection(obj, collection)
