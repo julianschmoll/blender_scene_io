@@ -4,7 +4,6 @@ import pathlib
 
 
 LOGGER = logging.getLogger("Mesh Stuff")
-scene = bpy.context.scene
 
 
 def get_vert_posisions(obj, dg):
@@ -35,7 +34,7 @@ def get_cache_file(name):
 
 def check_animated_frames(collection_names, framerange=None):
     if not framerange:
-        framerange = (scene.frame_start, scene.frame_end)
+        framerange = (bpy.context.scene.frame_start, bpy.context.scene.frame_end)
 
     cami = bpy.data.cameras["Camera"]
     cami_list = []
@@ -49,14 +48,14 @@ def check_animated_frames(collection_names, framerange=None):
             LOGGER.info(f"Using {sequence_cache} for {collection}")
             collection_map[collection] = {
                 "objects": collection_objects,
-                "animated_frames": [scene.frame_start],
+                "animated_frames": [bpy.context.scene.frame_start],
                 "sequence_cache": sequence_cache,
                 "previous_frame_pos": set(),
             }
 
     for _, collection in collection_map.items():
         collection["sequence_cache"].override_frame = True
-        collection["sequence_cache"].frame = scene.frame_start - 1
+        collection["sequence_cache"].frame = bpy.context.scene.frame_start - 1
 
     dg = bpy.context.evaluated_depsgraph_get()
 
@@ -78,7 +77,7 @@ def check_animated_frames(collection_names, framerange=None):
         dg = bpy.context.evaluated_depsgraph_get()
 
         if cami:
-            scene.frame_current = frame
+            bpy.context.scene.frame_current = frame
             current_cam_pos = [
                 cami.lens,
                 cami.shift_x,
