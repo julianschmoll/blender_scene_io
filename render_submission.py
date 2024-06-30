@@ -34,6 +34,8 @@ def submit_render(dry_run=False):
 
     bpy.ops.gpencil.change_blanket_material()
     bpy.ops.gpencil.remove_unused_lineart_mods()
+    scene_utils.cleanup_grease_collections()
+
     scene_utils.save_scenefile()
     run_wake_up_bats()
     child = subprocess.Popen(cmd, stdout=subprocess.PIPE)

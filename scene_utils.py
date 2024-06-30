@@ -144,3 +144,16 @@ def open_shot(shot_name):
     shot = get_highest_shot_version(shot_folder, full_name=True)
     shot_file = os.path.join(shot_folder, shot)
     bpy.ops.wm.open_mainfile(filepath=shot_file)
+
+
+def cleanup_grease_collections():
+    grease_layers = []
+
+    for layer in bpy.context.scene.view_layers:
+        if "Grease" in layer.name and not "NoGrease" in layer.name:
+            grease_layers.append(layer)
+
+    for layer in grease_layers:
+        for collection in layer.layer_collection.children:
+            if "grease" not in collection.name:
+                collection.exclude = True
