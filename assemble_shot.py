@@ -194,30 +194,26 @@ def load_cache_in_collection(cache, scale=(0.01, 0.01, 0.01)):
         name = naming_elements[0]
 
     imported_objects = import_alembic(cache)
-    root_object = get_imported_root_objects(imported_objects)
-    root_object.select_set(True)
+    adjust_scale(get_imported_root_objects(imported_objects), scale)
 
-    bpy.ops.object.select_grouped(type='CHILDREN_RECURSIVE')
-
-    root_object.select_set(True)
-    bpy.context.active_object.scale = scale
-
-    for obj in bpy.context.selected_objects:
+    for obj in imported_objects:
         collection_name = name
         if name == "static" and deselect_matte(obj):
             collection_name = "mattes"
         if COLLECTION_MAPPING.get(name):
             collection_name = COLLECTION_MAPPING.get(name)
         collection = create_collection(collection_name, unique=False)
-        try:
-            link_to_collection(obj, collection)
-        except RuntimeError:
-            LOGGER.warning(f"Could not link {obj}")
+        link_to_collection(obj, collection)
 
     LOGGER.info(f"Loaded and sorted {cache_path.stem}")
-
-
     bpy.ops.object.select_all(action='DESELECT')
+
+
+def adjust_scale(root_object, scale):
+    root_object.select_set(True)
+    bpy.ops.object.select_grouped(type='CHILDREN_RECURSIVE')
+    root_object.select_set(True)
+    bpy.context.active_object.scale = scale
 
 
 def create_collection(collection_name, unique=True):
@@ -286,13 +282,10 @@ def import_alembic(cache):
     return imported_objects
 
 
-# link root to collection named after import
-def link_to_collection(root_object, collection):
-    """
-    This function unlinks imported root from other collections and links it to the new created collection
-    """
-    bpy.context.scene.collection.objects.unlink(root_object)
-    collection.objects.link(root_object)
+def link_to_collection(obj, collection):
+    for prev_col in obj.users_collection:
+        prev_col.objects.unlink(obj)
+    collection.objects.link(obj)
 
 
 def camera_setup(cam_bake, overscan=0, scale=(0.01, 0.01, 0.01)):
